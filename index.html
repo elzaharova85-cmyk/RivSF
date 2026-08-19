@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Проекты Rivolty</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14171A">
+
+<!-- iOS: делает страницу похожей на настоящее приложение -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rivolty">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+
+<!-- Android: значок -->
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+
+<style>
+  :root, [data-theme="navy"] {
+    --bg: #161F35;
+    --bg-rgb: 22,31,53;
+    --bg-elevated: #1E2A47;
+    --bg-card: #23304F;
+    --border: #33436B;
+    --border-soft: #2B3A5D;
+    --text: #EEF3FC;
+    --text-dim: #A2B2D6;
+    --text-faint: #6C7CA3;
+    --amber: #5DB2EE;
+    --amber-rgb: 93,178,238;
+    --amber-contrast: #0A1830;
+    --green: #4CC38A;
+    --green-dim: #1F3D33;
+    --red: #E2695E;
+    --red-dim: #4A2A28;
+    --yellow: #D9BA5C;
+  }
+  [data-theme="sky"] {
+    --bg: #F4F9FD;
+    --bg-rgb: 244,249,253;
+    --bg-elevated: #EAF3FB;
+    --bg-card: #FFFFFF;
+    --border: #D3E4F3;
+    --border-soft: #E3EEF8;
+    --text: #12233B;
+    --text-dim: #4A6584;
+    --text-faint: #8CA3BC;
+    --amber: #2E86DE;
+    --amber-rgb: 46,134,222;
+    --amber-contrast: #FFFFFF;
+    --green: #1E8E5A;
+    --green-dim: #DCF3E7;
+    --red: #D9483D;
+    --red-dim: #FBE2DF;
+    --yellow: #B98418;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
+  .num { font-family: 'SF Mono', 'Roboto Mono', monospace; font-variant-numeric: tabular-nums; }
+  #app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; background: var(--bg); display: flex; flex-direction: column; }
+  .topbar { padding: 18px 20px 14px; border-bottom: 1px solid var(--border-soft); position: sticky; top: 0;
+    background: rgba(var(--bg-rgb),0.92); backdrop-filter: blur(10px); z-index: 20; }
+  .topbar-inner { position: relative; }
+  .topbar-eyebrow { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; }
+  .topbar-title { font-size: 22px; font-weight: 700; margin-top: 2px; letter-spacing: -0.01em; }
+  .theme-switch { display: flex; gap: 6px; position: absolute; top: 0; right: 0; }
+  .theme-dot { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); }
+  .theme-dot.active { border-color: var(--text); }
+  .kpi-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border-soft); }
+  .kpi-strip.secondary { border-bottom: 1px solid var(--border-soft); }
+  .kpi { background: var(--bg); padding: 14px 12px; }
+  .kpi-label { font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 6px; }
+  .kpi-value { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .kpi-value.amber { color: var(--amber); }
+  .kpi-value.green { color: var(--green); }
+  .list-section { padding: 16px 20px 4px; }
+  .section-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .list { display: flex; flex-direction: column; gap: 8px; padding: 0 20px 24px; }
+  .project-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px 12px; cursor: pointer; transition: border-color 0.15s ease, transform 0.1s ease; position: relative; }
+  .project-card.waiting { opacity: 0.62; background: var(--bg-elevated); }
+  .waiting-chip { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 100px; background: var(--border-soft); color: var(--text-faint); letter-spacing: 0.02em; }
+  .project-card.highlight { border-left: 3px solid #9B7EDE; background: linear-gradient(90deg, rgba(155,126,222,0.08), var(--bg-card) 60%); }
+  .highlight-chip { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 100px; background: rgba(155,126,222,0.16); color: #B79FEC; letter-spacing: 0.02em; }
+  .plan-warning { font-size: 11.5px; font-weight: 700; color: var(--yellow); background: rgba(217,186,92,0.12); border-radius: 8px; padding: 6px 10px; margin-bottom: 8px; }
+  .status-filter-row { display: flex; gap: 8px; padding: 0 20px 12px; }
+  .project-card:active { transform: scale(0.98); }
+  .pc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .pc-name { font-size: 14.5px; font-weight: 650; line-height: 1.25; padding-right: 60px; }
+  .status-chip { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 100px; white-space: nowrap; letter-spacing: 0.02em; }
+  .status-chip.ok { background: var(--green-dim); color: var(--green); }
+  .status-chip.warn { background: rgba(217,186,92,0.16); color: var(--yellow); }
+  .status-chip.risk { background: var(--red-dim); color: var(--red); }
+  .pc-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .pc-bar-track { flex: 1; height: 6px; background: var(--bg-elevated); border-radius: 100px; overflow: hidden; position: relative; }
+  .pc-bar-fill { height: 100%; border-radius: 100px; }
+  .pc-bar-pct { font-size: 12px; color: var(--text-dim); min-width: 58px; text-align: right; font-weight: 600; }
+  .pc-money-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-faint); margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); }
+  .pc-money-row .num { color: var(--text-dim); font-weight: 600; }
+  .pc-money-row .debt-val { color: #E2695E; font-weight: 700; }
+  .pc-bottom { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; gap: 8px; }
+  .pc-metric-label { color: var(--text-faint); }
+  .pc-metric-value { font-weight: 600; }
+  .chevron { position: absolute; right: 14px; top: 14px; color: var(--text-faint); font-size: 14px; }
+  .detail { position: fixed; inset: 0; max-width: 480px; margin: 0 auto; background: var(--bg); transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1); overflow-y: auto; z-index: 50; -webkit-overflow-scrolling: touch; }
+  .detail.open { transform: translateX(0); }
+  .detail-header { padding: 16px 20px 18px; border-bottom: 1px solid var(--border-soft); position: sticky; top: 0;
+    background: rgba(var(--bg-rgb),0.95); backdrop-filter: blur(10px); z-index: 5; }
+  .detail-close-btn { display: none; }
+  .detail-backdrop { display: none; }
+  .back-btn { display: flex; align-items: center; gap: 6px; font-size: 14.5px; color: var(--text); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; padding: 12px 14px; margin-bottom: 12px; font-weight: 700; width: 100%; box-sizing: border-box; }
+  .back-btn:active { background: var(--bg-card); }
+  .back-btn .back-arrow { font-size: 18px; line-height: 1; }
+  .detail-name { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+  .detail-client { font-size: 13px; color: var(--text-dim); margin-top: 3px; }
+  .detail-body { padding: 18px 20px 140px; }
+  .verdict-banner { border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  .verdict-banner.ok { background: var(--green-dim); }
+  .verdict-banner.warn { background: rgba(217,186,92,0.14); }
+  .verdict-banner.risk { background: var(--red-dim); }
+  .verdict-icon { font-size: 22px; }
+  .verdict-text-title { font-size: 13.5px; font-weight: 700; }
+  .verdict-banner.ok .verdict-text-title { color: var(--green); }
+  .verdict-banner.warn .verdict-text-title { color: var(--yellow); }
+  .verdict-banner.risk .verdict-text-title { color: var(--red); }
+  .verdict-text-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .block-title { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; margin: 22px 0 10px; }
+  .plan-edit-btn { font-size: 10.5px; font-weight: 700; text-transform: none; letter-spacing: normal; color: var(--amber); background: rgba(var(--amber-rgb),0.12); border: 1px solid rgba(var(--amber-rgb),0.3); border-radius: 100px; padding: 5px 10px; cursor: pointer; font-family: inherit; }
+  .plan-edit-form { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+  .plan-edit-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
+  .plan-edit-row label { font-size: 12.5px; color: var(--text-dim); }
+  .plan-edit-row input { width: 72px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; padding: 7px 8px; text-align: right; font-family: inherit; }
+  .plan-edit-sum { text-align: right; font-size: 11.5px; font-weight: 700; margin-bottom: 12px; }
+  .plan-edit-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .plan-btn { flex: 1; padding: 10px 8px; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; }
+  .plan-btn.primary { background: var(--amber); color: var(--amber-contrast); }
+  .plan-btn.secondary { background: var(--bg-card); color: var(--text-dim); border: 1px solid var(--border); }
+  .block-title:first-child { margin-top: 0; }
+  .plan-fact-row { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  .pf-line-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .pf-name { font-size: 13.5px; font-weight: 600; }
+  .pf-delta { font-size: 12px; font-weight: 700; }
+  .pf-delta.over { color: var(--red); }
+  .pf-delta.under { color: var(--green); }
+  .pf-track { height: 8px; background: var(--bg-elevated); border-radius: 100px; position: relative; overflow: visible; }
+  .pf-fact-fill { height: 100%; border-radius: 100px; position: relative; }
+  .pf-plan-marker { position: absolute; top: -3px; width: 2px; height: 14px; background: var(--text); opacity: 0.55; }
+  .pf-numbers { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-faint); margin-top: 6px; }
+  .pf-numbers .num { color: var(--text-dim); }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .stat-box-label { font-size: 11px; color: var(--text-faint); margin-bottom: 5px; font-weight: 600; }
+  .stat-box-value { font-size: 15.5px; font-weight: 700; }
+  .stat-box-value.pos { color: var(--green); }
+  .stat-box-value.neg { color: var(--red); }
+  .meta-list { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .meta-row { display: flex; justify-content: space-between; padding: 11px 16px; font-size: 13px; border-bottom: 1px solid var(--border-soft); }
+  .meta-row:last-child { border-bottom: none; }
+  .meta-row-label { color: var(--text-faint); }
+  .meta-row-value { font-weight: 600; }
+  .meta-row-value.faint { color: var(--text-faint); font-weight: 500; font-style: italic; }
+  .formula-note { margin: 22px 20px 6px; padding: 12px 14px; background: var(--bg-elevated); border-radius: 10px; font-size: 11.5px; color: var(--text-faint); line-height: 1.5; }
+  .nav-buttons { display: flex; flex-direction: column; gap: 8px; padding: 4px 20px 20px; }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex;
+    background: var(--bg-elevated); border-top: 1px solid var(--border); z-index: 60; }
+  .bottom-back-bar { position: fixed; bottom: 62px; left: 0; right: 0; max-width: 480px; margin: 0 auto; z-index: 65;
+    padding: 8px 16px; background: var(--bg); border-top: 1px solid var(--border-soft); display: none; }
+  .bottom-back-bar.show { display: block; }
+  .bottom-back-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box;
+    background: var(--amber); color: var(--amber-contrast); border: none; border-radius: 10px; padding: 13px 14px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .bottom-back-btn:active { opacity: 0.85; }
+  .bottom-nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 12px 4px 14px; cursor: pointer; background: none; border: none; color: var(--text-faint); font-family: inherit; }
+  .bottom-nav-btn .bn-icon { font-size: 19px; line-height: 1; }
+  .bottom-nav-btn .bn-label { font-size: 11px; font-weight: 700; }
+  .bottom-nav-btn.active { color: var(--amber); }
+  #app { padding-bottom: 64px; }
+  .nav-btn { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--text); }
+  .nav-btn:active { transform: scale(0.98); }
+  .nav-btn .chev { color: var(--text-faint); font-size: 16px; }
+  .employee-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .employee-btn { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 10px; text-align: center; cursor: pointer; }
+  .employee-btn:active { transform: scale(0.97); }
+  .employee-btn-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .employee-btn-role { font-size: 11px; color: var(--text-faint); }
+  .employee-btn.empty { opacity: 0.55; }
+  .bar-chart-group { display: flex; align-items: flex-end; gap: 10px; height: 140px; padding: 10px 6px 0; }
+  .bar-chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .bar-chart-bar { width: 100%; max-width: 34px; border-radius: 6px 6px 0 0; background: var(--amber); min-height: 2px; }
+  .bar-chart-val { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+  .bar-chart-label { font-size: 11px; color: var(--text-faint); margin-top: 6px; }
+  .year-table { display: flex; flex-direction: column; gap: 2px; }
+  .year-table-row { display: grid; grid-template-columns: 66px repeat(3, 1fr); align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border-soft); min-height: 40px; }
+  .year-table-row:last-child { border-bottom: none; }
+  .year-table-row.year-table-header { border-bottom: 1px solid var(--border); padding-bottom: 8px; min-height: auto; }
+  .year-table-label { font-size: 11px; color: var(--text-dim); font-weight: 600; }
+  .year-table-year { font-size: 12px; font-weight: 700; color: var(--text); }
+  .year-table-cell { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+  .year-table-val { font-size: 12px; font-weight: 700; font-family: 'SF Mono', 'Roboto Mono', monospace; line-height: 1.2; white-space: nowrap; }
+  .year-table-delta { font-size: 9.5px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+  .screen { position: fixed; inset: 0; max-width: 480px; margin: 0 auto; background: var(--bg); transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1); overflow-y: auto; z-index: 40; -webkit-overflow-scrolling: touch; }
+  .screen.open { transform: translateX(0); }
+  .screen-header { padding: 16px 20px 14px; border-bottom: 1px solid var(--border-soft); position: sticky; top: 0;
+    background: rgba(var(--bg-rgb),0.95); backdrop-filter: blur(10px); z-index: 5; }
+  .screen-title { font-size: 19px; font-weight: 700; margin-top: 4px; }
+  .screen-body { padding: 16px 20px 140px; }
+  .type-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .type-chip { padding: 7px 12px; border-radius: 100px; background: var(--bg-card); border: 1px solid var(--border); font-size: 12.5px; font-weight: 600; color: var(--text-dim); cursor: pointer; }
+  .type-chip.active { background: var(--amber); color: var(--amber-contrast); border-color: var(--amber); }
+  .search-input { width: 100%; box-sizing: border-box; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; padding: 11px 14px; font-family: inherit; margin-bottom: 12px; }
+  .search-input::placeholder { color: var(--text-faint); }
+  .chart-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 14px 10px; margin-bottom: 16px; }
+  .chart-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .chart-label { font-size: 11.5px; color: var(--text-dim); width: 78px; flex-shrink: 0; }
+  .chart-track { flex: 1; height: 16px; background: var(--bg-elevated); border-radius: 4px; overflow: hidden; position: relative; }
+  .chart-fill { height: 100%; border-radius: 4px; }
+  .chart-val { font-size: 11.5px; color: var(--text-faint); width: 44px; text-align: right; flex-shrink: 0; }
+  .compare-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+  .side-nav { display: none; }
+  #active-view.hidden-view { display: none !important; }
+
+  @media (min-width: 900px) {
+    body { overflow: hidden; }
+    #app { max-width: none; display: flex; flex-direction: row; align-items: stretch; height: 100vh; }
+    .main-content { flex: 1 1 auto; min-width: 0; height: 100vh; overflow-y: auto; padding-bottom: 0; }
+    .side-nav { display: flex; flex-direction: column; gap: 4px; flex: 0 0 240px; width: 240px; height: 100vh; overflow-y: auto;
+      background: var(--bg-elevated); border-right: 1px solid var(--border); padding: 24px 14px; box-sizing: border-box; }
+    .side-nav-title { font-size: 15px; font-weight: 800; letter-spacing: 0.02em; color: var(--text); padding: 0 10px 18px; }
+    .side-nav-btn { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 10px; border: none; background: none;
+      color: var(--text-dim); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; text-align: left; }
+    .side-nav-btn:hover { background: var(--bg-card); color: var(--text); }
+    .side-nav-btn.active { background: rgba(var(--amber-rgb),0.14); color: var(--amber); }
+    .side-nav-btn .bn-icon { font-size: 17px; width: 20px; text-align: center; }
+
+    .bottom-back-bar, .bottom-back-bar.show { display: none !important; }
+    .bottom-nav { position: fixed; max-width: none; left: 240px; right: 0; z-index: 80; }
+    .main-content { padding-bottom: 64px; }
+
+    .topbar { position: static; }
+    .topbar-inner { max-width: 1100px; margin: 0 auto; }
+
+    .kpi-strip { max-width: 1100px; margin: 0 auto; }
+    .list-section, .status-filter-row, .formula-note, .nav-buttons { max-width: 1100px; margin-left: auto; margin-right: auto; }
+
+    .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; max-width: 1100px; margin: 0 auto; padding: 0 20px 24px; }
+
+    .screen { position: static; max-width: 1100px; margin: 0 auto; height: auto; min-height: auto; transform: none !important;
+      display: none; box-shadow: none; overflow-y: visible; }
+    .screen.open { display: block; }
+    .screen-header { position: static; padding-top: 28px; }
+    .screen-body { max-width: none; padding-bottom: 60px; }
+
+    .detail { width: 640px; max-width: 640px; left: 50%; right: auto; transform: translateX(150%); top: 40px; bottom: 40px; height: calc(100vh - 80px);
+      border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+    .detail.open { transform: translateX(-50%); }
+    .detail-backdrop { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 49; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .detail-backdrop.open { opacity: 1; pointer-events: auto; }
+    .detail-close-btn { display: flex; align-items: center; justify-content: center; position: absolute; top: 14px; right: 16px; width: 32px; height: 32px;
+      border-radius: 50%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-dim); font-size: 15px; cursor: pointer; }
+    .detail-close-btn:hover { background: var(--bg-card); color: var(--text); }
+
+    .employee-grid { grid-template-columns: repeat(3, 1fr); }
+    .compare-stats { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="side-nav" id="side-nav">
+    <div class="side-nav-title">Rivolty</div>
+    <button class="side-nav-btn" id="sn-active"><span class="bn-icon">🏠</span><span>Активные проекты</span></button>
+    <button class="side-nav-btn" id="sn-closed"><span class="bn-icon">✓</span><span>Закрытые проекты</span></button>
+    <button class="side-nav-btn" id="sn-stats"><span class="bn-icon">📈</span><span>Статистика</span></button>
+    <button class="side-nav-btn" id="sn-employees"><span class="bn-icon">👥</span><span>Сотрудники</span></button>
+  </div>
+
+  <div class="main-content" id="main-content">
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-eyebrow">Панель собственника</div>
+      <div class="topbar-title">Проекты</div>
+      <div class="theme-switch" id="theme-switch">
+        <div class="theme-dot" data-theme-id="navy" style="background:linear-gradient(135deg,#161F35,#5DB2EE)" onclick="setTheme('navy')" title="Тёмно-синий"></div>
+        <div class="theme-dot" data-theme-id="sky" style="background:linear-gradient(135deg,#F4F9FD,#2E86DE)" onclick="setTheme('sky')" title="Светлый голубой"></div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px; gap:8px;">
+      <div id="data-status" style="font-size:11px; color:var(--text-faint);">⏳ Загрузка...</div>
+      <button id="refresh-btn" style="flex-shrink:0; font-size:11px; font-weight:700; color:var(--amber); background:rgba(var(--amber-rgb),0.12); border:1px solid rgba(var(--amber-rgb),0.3); border-radius:100px; padding:5px 10px; cursor:pointer; font-family:inherit;">↻ Обновить</button>
+    </div>
+  </div>
+
+  <div id="active-view">
+
+  <div class="kpi-strip">
+    <div class="kpi"><div class="kpi-label">В работе</div><div class="kpi-value num">10</div></div>
+    <div class="kpi"><div class="kpi-label">Стоимость всех</div><div class="kpi-value num amber">$598.5k</div></div>
+    <div class="kpi"><div class="kpi-label">Текущая прибыль</div><div class="kpi-value num green">$291.5k</div></div>
+  </div>
+  <div class="kpi-strip secondary">
+    <div class="kpi"><div class="kpi-label">Оплачено клиентами</div><div class="kpi-value num">$367.0k</div></div>
+    <div class="kpi"><div class="kpi-label">Долг клиентов</div><div class="kpi-value num" style="color:#E2695E;">$231.5k</div></div>
+    <div class="kpi"><div class="kpi-label">% оплачено</div><div class="kpi-value num">61%</div></div>
+  </div>
+
+  <div class="list-section">
+    <div class="section-label"><span>Активные проекты</span><span class="num" id="active-count">10</span></div>
+  </div>
+
+  <div class="status-filter-row" id="status-filter-row"></div>
+
+  <div class="list" id="project-list"></div>
+
+  <div class="formula-note">
+    План по расходам автоматически выставляется по категории работ — статистика по каждому типу: Shed 2026 (материалы 32.1%, ЗП рабочих 19.6%, прочие расходы 4.7%, ЗП Стас 19.5%, ЗП Саша 1.4%, ЗП Алекс 5.4%, прибыль 17.3%) и Pergola 2025 (материалы 38.1%, ЗП рабочих 12.2%, прочие расходы 2.5%, ЗП Стас 10.2%, ЗП Саша 1.0%, ЗП Алекс 9.7%, прибыль 26.4%). Для остальных типов работ план нужно выставить вручную кнопкой «Изменить план» — пока план не задан, на карточке видно предупреждение «Внимание, установите план». Для проектов «design» и «permit» план не применяется вообще — вместо рабочих дней на карточке показана дата начала работ (= дата оплаты от клиента). Рабочие дни для остальных проектов взяты из вкладки «Учет ЗП» — считаются как количество уникальных календарных дат, где встречается проект.
+  </div>
+
+  </div>
+
+  <div class="detail-backdrop" id="detail-backdrop"></div>
+
+  <div class="detail" id="detail">
+    <div class="detail-header">
+      <button class="detail-close-btn" id="detail-close-btn">✕</button>
+      <div class="detail-name" id="d-name">—</div>
+      <div class="detail-client" id="d-client">—</div>
+    </div>
+    <div class="detail-body" id="detail-body"></div>
+  </div>
+
+  <div class="screen" id="screen-closed">
+    <div class="screen-header">
+      <div class="screen-title">Закрытые проекты</div>
+    </div>
+    <div class="screen-body">
+      <input type="text" class="search-input" id="closed-search" placeholder="Поиск по названию проекта..." oninput="renderClosedList()">
+      <div class="type-chip-row" id="closed-year-chips"></div>
+      <div class="list" id="closed-list"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-compare">
+    <div class="screen-header">
+      <div class="screen-title">Сравнение по типу</div>
+    </div>
+    <div class="screen-body" id="compare-body"></div>
+  </div>
+
+  <div class="screen" id="screen-stats">
+    <div class="screen-header">
+      <div class="screen-title">Статистика по годам</div>
+    </div>
+    <div class="screen-body" id="stats-body"></div>
+  </div>
+
+  <div class="screen" id="screen-marketing">
+    <div class="screen-header">
+      <div class="screen-title">Маркетинг</div>
+    </div>
+    <div class="screen-body" id="marketing-body"></div>
+  </div>
+
+  <div class="screen" id="screen-employees">
+    <div class="screen-header">
+      <div class="screen-title">Сотрудники</div>
+    </div>
+    <div class="screen-body" id="employees-body"></div>
+  </div>
+
+  <div class="bottom-back-bar" id="bottom-back-bar">
+    <button class="bottom-back-btn" id="bottom-back-btn"><span class="back-arrow">←</span> Назад</button>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="bottom-nav-btn" id="bn-active"><span class="bn-icon">🏠</span><span class="bn-label">Активные</span></button>
+    <button class="bottom-nav-btn" id="bn-closed"><span class="bn-icon">✓</span><span class="bn-label">Закрытые</span></button>
+    <button class="bottom-nav-btn" id="bn-stats"><span class="bn-icon">📈</span><span class="bn-label">Статистика</span></button>
+    <button class="bottom-nav-btn" id="bn-employees"><span class="bn-icon">👥</span><span class="bn-label">Сотрудники</span></button>
+  </div>
+
+  </div>
+</div>
+
+<script>
+// Навигация привязывается через addEventListener (а не onclick в HTML) —
+// это надёжнее в браузерах с усиленной защитой (например, Яндекс.Браузер),
+// которые иногда блокируют встроенные обработчики onclick в HTML-атрибутах.
+document.addEventListener('DOMContentLoaded', bindStaticNav);
+if (document.readyState === 'interactive' || document.readyState === 'complete') bindStaticNav();
+
+function bindStaticNav() {
+  const bind = (id, fn) => {
+    const el = document.getElementById(id);
+    if (el && !el.dataset.bound) { el.addEventListener('click', fn); el.dataset.bound = '1'; }
+  };
+  bind('sn-active', goToActive);
+  bind('sn-closed', () => openScreen('closed'));
+  bind('sn-stats', () => openScreen('stats'));
+  bind('sn-marketing', () => openScreen('marketing'));
+  bind('sn-employees', () => openScreen('employees'));
+  bind('bn-active', goToActive);
+  bind('bn-closed', () => openScreen('closed'));
+  bind('bn-stats', () => openScreen('stats'));
+  bind('bn-marketing', () => openScreen('marketing'));
+  bind('bn-employees', () => openScreen('employees'));
+  bind('bottom-back-btn', goBack);
+  bind('detail-close-btn', closeDetail);
+  bind('detail-backdrop', closeDetail);
+}
+bindStaticNav();
+
+const RATE_MAT = 0.27, RATE_LABOR = 0.25, RATE_OTHER = 0.23, RATE_PROFIT = 0.25;
+
+// === Живое подключение к Google Таблице ===
+const SHEET_PROJECTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpxeX8uSUuZA4x_UxtDgKDqyc9aHV-0s4tdlfeDzo-E033yF_a_nD1WKDWh_TUxhPZJciR5Sy9af6i/pub?gid=38973765&single=true&output=csv';
+const SHEET_ZP_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpxeX8uSUuZA4x_UxtDgKDqyc9aHV-0s4tdlfeDzo-E033yF_a_nD1WKDWh_TUxhPZJciR5Sy9af6i/pub?gid=1589384842&single=true&output=csv';
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], next = text[i+1];
+    if (inQuotes) {
+      if (c === '"' && next === '"') { field += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\r') { /* skip */ }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+function csvToObjects(text) {
+  const rows = parseCSV(text).filter(r => r.length > 1);
+  const header = rows[0];
+  const idx = {};
+  header.forEach((h, i) => { idx[h.trim()] = i; });
+  const get = (row, name) => { const i = idx[name]; return i !== undefined ? row[i] : ''; };
+  return { rows: rows.slice(1), get, idx };
+}
+
+function n(v) {
+  if (v === undefined || v === null || v === '') return 0;
+  const s = String(v).replace(/[$,\s]/g, '').replace(',', '.');
+  const f = parseFloat(s);
+  return isNaN(f) ? 0 : f;
+}
+
+function parseSheetDate(v) {
+  if (!v) return null;
+  const s = String(v).trim();
+  // формат в таблице: M/D/YYYY или M/D/YY
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (m) {
+    let [, mo, d, y] = m;
+    if (y.length === 2) y = '20' + y;
+    return `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+  // формат ISO уже
+  const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m2) return `${m2[1]}-${m2[2]}-${m2[3]}`;
+  return null;
+}
+function fmtDateShort(iso) {
+  if (!iso) return null;
+  const [y,mo,d] = iso.split('-');
+  return `${d}.${mo}.${y.slice(2)}`;
+}
+
+function normType(raw) {
+  const t = (raw || '').toLowerCase();
+  const order = ['small deal','design','shed','pergola','deck','patio','screen','fence','roof','permit'];
+  for (const key of order) if (t.includes(key)) return key;
+  return 'прочее';
+}
+
+async function fetchText(url) {
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.text();
+}
+
+async function loadLiveData() {
+  const [projText, zpText] = await Promise.all([
+    fetchText(SHEET_PROJECTS_CSV_URL),
+    fetchText(SHEET_ZP_CSV_URL)
+  ]);
+
+  const proj = csvToObjects(projText);
+  const zp = csvToObjects(zpText);
+
+  // --- рабочие дни по проекту из "Учет ЗП" (уникальные даты) ---
+  const workdaysByProject = {};
+  zp.rows.forEach(r => {
+    const projName = (zp.get(r, 'Проект') || '').trim();
+    const dateRaw = (zp.get(r, 'Дата') || '').trim();
+    if (!projName || !dateRaw) return;
+    const dateNorm = parseSheetDate(dateRaw) || dateRaw;
+    if (!workdaysByProject[projName]) workdaysByProject[projName] = new Set();
+    workdaysByProject[projName].add(dateNorm);
+  });
+  const getWorkdays = (name) => {
+    const set = workdaysByProject[name];
+    return set ? set.size : null;
+  };
+
+  const ACTIVE_STATUSES = ['in progress', 'waiting for work'];
+  const rawProjectsNew = [];
+  const closedProjectsNew = [];
+  const alexProjectsNew = [];
+
+  proj.rows.forEach(r => {
+    const name = (proj.get(r, 'Проект') || '').trim();
+    if (!name) return;
+    const status = (proj.get(r, 'Статус  проекта') || '').trim().toLowerCase();
+    const typeRaw = (proj.get(r, 'Тип работ') || '').trim();
+    const total = n(proj.get(r, 'Стоимость проекта'));
+    const paid = n(proj.get(r, 'ОПЛАТА от клиента'));
+    const debt = n(proj.get(r, 'Долг по проекту'));
+    const mat = Math.abs(n(proj.get(r, 'Затраты материал')));
+    const other = Math.abs(n(proj.get(r, 'Затраты прочее')));
+    const labor = Math.abs(n(proj.get(r, 'ЗП рабочие')));
+    const stas = Math.abs(n(proj.get(r, 'Stas')));
+    const sasha = Math.abs(n(proj.get(r, 'Sasha')));
+    const alex = Math.abs(n(proj.get(r, 'Alex')));
+    const ap = Math.abs(n(proj.get(r, 'ЗП АП')));
+    const profit = n(proj.get(r, 'Прибыль'));
+    const profitPct = total ? Math.round((profit/total)*1000)/10 : 0;
+    const startISO = parseSheetDate(proj.get(r, 'Начало работ'));
+    const endISO = parseSheetDate(proj.get(r, 'Окончание работ'));
+    const contractISO = parseSheetDate(proj.get(r, 'Дата контракта')) || startISO;
+    const staff = stas + sasha + alex;
+
+    const typeLow = typeRaw.toLowerCase();
+    const isDesignPermit = typeLow.includes('design') ? 'design' : (typeLow.includes('permit') ? 'permit' : null);
+
+    // --- активные проекты ---
+    if (ACTIVE_STATUSES.includes(status)) {
+      let planCategory = null;
+      if (!isDesignPermit) {
+        if (typeLow.trim() === 'shed') planCategory = 'shed';
+        else if (typeLow.includes('pergola')) planCategory = 'pergola';
+      }
+      rawProjectsNew.push({
+        name, type: isDesignPermit || 'shed', planCategory,
+        total, paid, debt, mat, other, labor, staff, stas, sasha, alex, profit, profitPct,
+        workdays: isDesignPermit ? null : getWorkdays(name),
+        startDate: fmtDateShort(startISO) || '—',
+        waiting: status === 'waiting for work',
+        highlight: name === 'Daily city remodel'
+      });
+    }
+
+    // --- закрытые проекты ---
+    if (status === 'done') {
+      closedProjectsNew.push({
+        name, rawType: typeRaw, type: normType(typeRaw),
+        cost: total, paid, debt, mat, other, labor, stas, sasha, alex, ap, profit, profitPct,
+        start: startISO, end: endISO, workdays: n(proj.get(r,'Рабочие дни на объекте')) || null
+      });
+    }
+
+    // --- Алекс (сотрудник) ---
+    const alexPayRaw = n(proj.get(r, 'Alex'));
+    if (alexPayRaw !== 0) {
+      alexProjectsNew.push({
+        name, cost: total, profit,
+        alexPay: alexPayRaw,
+        contractDate: contractISO,
+        endDate: endISO,
+        year: contractISO ? contractISO.slice(0,4) : null,
+        yearEnd: endISO ? endISO.slice(0,4) : null,
+        status: status === 'done' ? 'done' : status
+      });
+    }
+  });
+
+  return { rawProjectsNew, closedProjectsNew, alexProjectsNew };
+}
+
+// --- Интеграция с приложением: подмена данных и перерисовка ---
+let liveDataStatus = 'idle'; // idle | loading | ok | error
+
+function updateKpiStrip() {
+  const active = rawProjects;
+  const total = active.reduce((a,p)=>a+p.total,0);
+  const paid = active.reduce((a,p)=>a+p.paid,0);
+  const debt = active.reduce((a,p)=>a+p.debt,0);
+  const profit = active.reduce((a,p)=>a+p.profit,0);
+  const pct = total ? Math.round(paid/total*100) : 0;
+  const fmtK = (n) => '$' + (n/1000).toFixed(1) + 'k';
+  const kpis = document.querySelectorAll('.kpi-strip .kpi-value');
+  if (kpis.length >= 6) {
+    kpis[0].textContent = active.length;
+    kpis[1].textContent = fmtK(total);
+    kpis[2].textContent = fmtK(profit);
+    kpis[3].textContent = fmtK(paid);
+    kpis[4].textContent = fmtK(debt);
+    kpis[5].textContent = pct + '%';
+  }
+}
+
+function showDataStatus(status, extra) {
+  liveDataStatus = status;
+  const el = document.getElementById('data-status');
+  if (!el) return;
+  if (status === 'loading') el.innerHTML = '⏳ Обновляю данные из таблицы...';
+  else if (status === 'ok') el.innerHTML = '✅ Данные из таблицы · ' + (extra || '');
+  else if (status === 'error') el.innerHTML = '⚠️ Не удалось загрузить свежие данные — показаны последние сохранённые (' + (extra || '') + ')';
+}
+
+async function refreshLiveData(manual) {
+  showDataStatus('loading');
+  try {
+    const { rawProjectsNew, closedProjectsNew, alexProjectsNew } = await loadLiveData();
+    if (!rawProjectsNew.length) throw new Error('Пустой список активных проектов — похоже, таблица не опубликована правильно');
+
+    rawProjects = rawProjectsNew;
+    closedProjects = closedProjectsNew;
+    alexProjectsData.length = 0;
+    alexProjectsNew.forEach(p => alexProjectsData.push(p));
+    if (employeeData && employeeData.alex) employeeData.alex.projects = alexProjectsData;
+
+    try {
+      localStorage.setItem('rivolty-cache-projects', JSON.stringify(rawProjectsNew));
+      localStorage.setItem('rivolty-cache-closed', JSON.stringify(closedProjectsNew));
+      localStorage.setItem('rivolty-cache-alex', JSON.stringify(alexProjectsNew));
+      localStorage.setItem('rivolty-cache-time', Date.now().toString());
+    } catch(e) {}
+
+    refreshProjects();
+    renderClosedList();
+    updateKpiStrip();
+    const now = new Date();
+    const timeStr = now.toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+    showDataStatus('ok', 'обновлено ' + timeStr);
+  } catch (e) {
+    showDataStatus('error', e.message);
+    console.warn('Не удалось загрузить живые данные:', e);
+  }
+}
+
+function initLiveData() {
+  // сначала пробуем восстановить из кэша (быстрый первый рендер офлайн)
+  try {
+    const cachedProj = localStorage.getItem('rivolty-cache-projects');
+    const cachedClosed = localStorage.getItem('rivolty-cache-closed');
+    const cachedAlex = localStorage.getItem('rivolty-cache-alex');
+    const cachedTime = localStorage.getItem('rivolty-cache-time');
+    if (cachedProj && cachedClosed) {
+      rawProjects = JSON.parse(cachedProj);
+      closedProjects = JSON.parse(cachedClosed);
+      if (cachedAlex) {
+        const arr = JSON.parse(cachedAlex);
+        alexProjectsData.length = 0;
+        arr.forEach(p => alexProjectsData.push(p));
+        if (employeeData && employeeData.alex) employeeData.alex.projects = alexProjectsData;
+      }
+      refreshProjects();
+      renderClosedList();
+      updateKpiStrip();
+      if (cachedTime) {
+        const d = new Date(parseInt(cachedTime));
+        showDataStatus('ok', 'из кэша, ' + d.toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }));
+      }
+    }
+  } catch(e) {}
+
+  // затем в фоне тянем свежие данные
+  refreshLiveData(false);
+}
+
+
+let rawProjects = [
+  { name: 'Liam Foley Shed SF_cube shed 1646 SF', type: 'shed', planCategory: 'shed', total: 40420, paid: 14000, debt: 26420, mat: 3561.11, other: 0, labor: 0, staff: 1252, stas: 0, sasha: 0, alex: 1252, profit: 35606.89, profitPct: 88.1, workdays: 0, startDate: '31.07.26', waiting: true },
+  { name: 'Daily city remodel', type: 'shed', planCategory: null, total: 361297, paid: 210302, debt: 150995, mat: 33939, other: 122625, labor: 21205, staff: 0, stas: 0, sasha: 0, alex: 0, profit: 183528, profitPct: 50.8, workdays: 56, startDate: '21.04.26', highlight: true },
+  { name: 'KER H THAN_SHED 3621 Florence', type: 'shed', planCategory: 'shed', total: 35460, paid: 13500, debt: 21960, mat: 7748, other: 1217, labor: 0, staff: 1951, stas: 0, sasha: 354.6, alex: 1596, profit: 24545, profitPct: 69.2, workdays: 0, startDate: '01.06.26' },
+  { name: 'Sean and Natalie Mitchel Redwood_shed', type: 'shed', planCategory: 'shed', total: 56880, paid: 54780, debt: 2100, mat: 18447, other: 743, labor: 10099, staff: 9669, stas: 9100, sasha: 568.8, alex: 0, profit: 17922, profitPct: 31.5, workdays: 17, startDate: '01.07.26' },
+  { name: 'Yidong Ju & Marius Renn - pergola 260 Moutain', type: 'shed', planCategory: 'pergola', total: 39250, paid: 10500, debt: 28750, mat: 3792, other: 92, labor: 3283, staff: 8056, stas: 3738.75, sasha: 392.5, alex: 3925, profit: 24027, profitPct: 61.2, workdays: 13, startDate: '10.11.25' },
+  { name: 'Daniel Bogart - shed 3443 Santa Rosa', type: 'shed', planCategory: 'shed', total: 50471, paid: 49171, debt: 1300, mat: 20706, other: 1435, labor: 12123, staff: 12670, stas: 9350, sasha: 504.71, alex: 2815, profit: 3538, profitPct: 7.0, workdays: 24, startDate: '08.01.26' },
+  { name: 'Dr Katherine Eslao_permit', type: 'permit', planCategory: null, total: 11410, paid: 11410, debt: 0, mat: 0, other: 10071, labor: 0, staff: 1600, stas: 1600, sasha: 0, alex: 0, profit: -261, profitPct: -2.3, workdays: null, startDate: '22.03.26' },
+  { name: 'Judy Fuentebella SM shed pool_design', type: 'design', planCategory: null, total: 1500, paid: 1500, debt: 0, mat: 0, other: 0, labor: 0, staff: 0, stas: 0, sasha: 0, alex: 0, profit: 1500, profitPct: 100.0, workdays: null, startDate: '12.06.26' },
+  { name: 'William Pu Golf Simulator Shed_design', type: 'design', planCategory: null, total: 1200, paid: 1200, debt: 0, mat: 0, other: 0, labor: 0, staff: 0, stas: 0, sasha: 0, alex: 0, profit: 1200, profitPct: 100.0, workdays: null, startDate: '03.08.26' },
+  { name: 'Chintan Turakhia _design', type: 'design', planCategory: null, total: 600, paid: 600, debt: 0, mat: 0, other: 697, labor: 0, staff: 0, stas: 0, sasha: 0, alex: 0, profit: -97, profitPct: -16.1, workdays: null, startDate: '13.02.26' },
+];
+
+function fmt(n) { return (n < 0 ? '−$' : '$') + Math.abs(Math.round(n)).toLocaleString('en-US'); }
+
+const NO_PLAN_TYPES = ['design', 'permit'];
+// Автопланы по категориям работ — статистика 2026/2025 года по каждому типу
+const AUTO_PLAN_RATES_BY_CATEGORY = {
+  shed: { mat: 0.321, labor: 0.196, other: 0.047, stas: 0.195, sasha: 0.014, alex: 0.054, profit: 0.173 },
+  pergola: { mat: 0.381, labor: 0.122, other: 0.025, stas: 0.102, sasha: 0.010, alex: 0.097, profit: 0.264 }
+};
+const AUTO_PLAN_LABELS = { shed: 'Shed 2026', pergola: 'Pergola 2025' };
+const customPlanRates = {}; // name -> {mat, labor, other, stas, sasha, alex, profit} in fractions, overrides defaults for this session
+let plannedDaysOverrides = {};
+try { plannedDaysOverrides = JSON.parse(localStorage.getItem('rivolty-planned-days') || '{}'); } catch(e) { plannedDaysOverrides = {}; }
+
+function computeProject(p) {
+  const noPlanType = NO_PLAN_TYPES.includes(p.type);
+  const custom = customPlanRates[p.name];
+  const autoRates = p.planCategory ? AUTO_PLAN_RATES_BY_CATEGORY[p.planCategory] : null;
+  // hasPlan: план есть, если это design/permit (плана нет вообще — отдельная ветка ниже),
+  // либо для этой категории есть автоплан, либо кто-то вручную задал план для этого проекта.
+  const hasPlan = !noPlanType && (!!autoRates || !!custom);
+  const needsPlanWarning = !noPlanType && !autoRates && !custom;
+
+  const rates = custom || autoRates;
+  const rMat = rates ? rates.mat : null;
+  const rLabor = rates ? rates.labor : null;
+  const rOther = rates ? rates.other : null;
+  const rStas = rates ? rates.stas : null;
+  const rSasha = rates ? rates.sasha : null;
+  const rAlex = rates ? rates.alex : null;
+  const rProfit = rates ? rates.profit : null;
+
+  const planMat = hasPlan ? p.total * rMat : null;
+  const planLabor = hasPlan ? p.total * rLabor : null;
+  const planOther = hasPlan ? p.total * rOther : null;
+  const planStas = hasPlan ? p.total * rStas : null;
+  const planSasha = hasPlan ? p.total * rSasha : null;
+  const planAlex = hasPlan ? p.total * rAlex : null;
+  const planProfit = hasPlan ? p.total * rProfit : null;
+  const factOther = p.other; // прочие расходы отдельно от ЗП Стас/Саша/Алекс теперь
+  const progress = p.total > 0 ? Math.min(100, Math.round((p.paid / p.total) * 100)) : 0;
+
+  const common = { ...p, planMat, planLabor, planOther, planStas, planSasha, planAlex, planProfit, factOther, progress, hasPlan, needsPlanWarning,
+    planRates: rates ? {mat:rMat, labor:rLabor, other:rOther, stas:rStas, sasha:rSasha, alex:rAlex, profit:rProfit} : null,
+    isCustomPlan: !!custom, isAutoPlan: !custom && !!autoRates,
+    plannedDays: (plannedDaysOverrides[p.name] ?? null) };
+
+  let status, statusLabel, verdict;
+
+  if (noPlanType) {
+    // design/permit — план не считаем, просто смотрим на факт прибыли
+    if (p.profit < 0) {
+      status = 'risk'; statusLabel = 'Убыток';
+      verdict = { type: 'risk', title: `Убыток ${fmt(p.profit)}`, sub: `${p.type === 'permit' ? 'Пермит' : 'Дизайн'}-проект — без плана по стройке, но прибыль отрицательная` };
+    } else {
+      status = 'ok'; statusLabel = 'По плану';
+      verdict = { type: 'ok', title: 'Проект прибыльный', sub: `${p.type === 'permit' ? 'Пермит' : 'Дизайн'}-проект — план по стройке не применяется, прибыль ${p.profitPct}%` };
+    }
+    return { ...common, status, statusLabel, verdict };
+  }
+
+  if (needsPlanWarning) {
+    status = 'warn'; statusLabel = 'Установите план';
+    verdict = { type: 'warn', title: 'План не задан', sub: 'Это не типовой Shed — план по расходам нужно выставить вручную кнопкой «Изменить план»' };
+    return { ...common, status, statusLabel, verdict };
+  }
+
+  const profitRatio = planProfit !== 0 ? p.profit / planProfit : 0;
+  const profitTargetPct = Math.round(rProfit * 1000) / 10;
+  if (p.profit < 0) {
+    status = 'risk'; statusLabel = 'Убыток';
+    verdict = { type: 'risk', title: `Убыток ${fmt(p.profit)}`, sub: `При целевой прибыли ${fmt(planProfit)} (${profitTargetPct}% от стоимости)` };
+  } else if (profitRatio < 0.6) {
+    status = 'warn'; statusLabel = 'Низкая прибыль';
+    verdict = { type: 'warn', title: 'Прибыль сильно ниже цели', sub: `Факт ${p.profitPct}% при целевых ${profitTargetPct}% — разберитесь со статьями расходов` };
+  } else if (profitRatio < 0.95) {
+    status = 'warn'; statusLabel = 'Внимание';
+    verdict = { type: 'warn', title: 'Прибыль ниже целевой', sub: `Факт ${p.profitPct}% при целевых ${profitTargetPct}%` };
+  } else {
+    status = 'ok'; statusLabel = 'По плану';
+    verdict = { type: 'ok', title: 'Прибыль на уровне цели или выше', sub: `Факт ${p.profitPct}% при целевых ${profitTargetPct}%` };
+  }
+  return { ...common, status, statusLabel, verdict };
+}
+
+let projects = rawProjects.map(computeProject);
+const statusColor = { ok: 'var(--green)', warn: 'var(--yellow)', risk: 'var(--red)' };
+
+let activeStatusFilter = 'all'; // all | progress | waiting
+
+function renderList() {
+  const filterRow = document.getElementById('status-filter-row');
+  const inProgressCount = projects.filter(p => !p.waiting).length;
+  const waitingCount = projects.filter(p => p.waiting).length;
+  filterRow.innerHTML = `
+    <div class="type-chip ${activeStatusFilter==='all'?'active':''}" onclick="setActiveStatusFilter('all')">Все (${projects.length})</div>
+    <div class="type-chip ${activeStatusFilter==='progress'?'active':''}" onclick="setActiveStatusFilter('progress')">В работе (${inProgressCount})</div>
+    <div class="type-chip ${activeStatusFilter==='waiting'?'active':''}" onclick="setActiveStatusFilter('waiting')">В ожидании (${waitingCount})</div>
+  `;
+
+  const filtered = projects.filter(p => {
+    if (activeStatusFilter === 'progress') return !p.waiting;
+    if (activeStatusFilter === 'waiting') return !!p.waiting;
+    return true;
+  });
+  const sorted = [...filtered].sort((a,b) => (a.waiting?1:0) - (b.waiting?1:0));
+
+  document.getElementById('active-count').textContent = filtered.length;
+
+  const list = document.getElementById('project-list');
+  list.innerHTML = sorted.map((p) => {
+    const i = projects.indexOf(p);
+    const cardClass = [p.waiting ? 'waiting' : '', p.highlight ? 'highlight' : ''].filter(Boolean).join(' ');
+    return `
+    <div class="project-card ${cardClass}" onclick="openDetail(${i})">
+      <span class="chevron">›</span>
+      <div class="pc-top"><div class="pc-name">${p.name}</div>${p.waiting ? '<span class="waiting-chip">в ожидании работ</span>' : (p.highlight ? '<span class="highlight-chip">проект с Ашотом</span>' : '')}</div>
+      <div class="pc-money-row">
+        <span>Стоимость проекта <span class="num">${fmt(p.total)}</span></span>
+      </div>
+      ${p.needsPlanWarning ? `<div class="plan-warning">⚠ Внимание, установите план</div>` : ''}
+      <div class="pc-bar-row">
+        <div class="pc-bar-track"><div class="pc-bar-fill" style="width:${Math.min(100, Math.max(0, Math.abs(p.profitPct)))}%; background:${statusColor[p.status]}"></div></div>
+        <div class="pc-bar-pct num" style="color:${statusColor[p.status]}">${p.profitPct>=0?'+':''}${p.profitPct}% приб.</div>
+      </div>
+      <div class="pc-bottom">
+        <div><span class="pc-metric-label">Прибыль </span><span class="pc-metric-value num" style="color:${p.profit >= 0 ? 'var(--green)' : 'var(--red)'}">${p.profit >= 0 ? '+' : ''}${fmt(p.profit)}</span></div>
+        <div>${p.type !== 'design' && p.type !== 'permit'
+            ? `<span class="pc-metric-label">Дней </span><span class="pc-metric-value num">${p.workdays !== null ? p.workdays : '—'}</span>`
+            : `<span class="pc-metric-label">Начало </span><span class="pc-metric-value num">${p.startDate}</span>`
+          }</div>
+        <span class="status-chip ${p.status}">${p.statusLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setActiveStatusFilter(f) { activeStatusFilter = f; renderList(); }
+
+function openDetail(i) {
+  currentDetailIndex = i;
+  const p = projects[i];
+  document.getElementById('d-name').textContent = p.name;
+  document.getElementById('d-client').textContent = `Стоимость проекта: ${fmt(p.total)}`;
+  const verdictIcon = { ok: '✓', warn: '!', risk: '⚠' }[p.verdict.type];
+
+  const pfRow = (label, plan, fact) => {
+    const pct = plan > 0 ? Math.min(100, (fact / plan) * 100) : 0;
+    const delta = fact - plan;
+    const deltaCls = delta > 0 ? 'over' : 'under';
+    const barColor = fact > plan ? 'var(--red)' : 'var(--green)';
+    return `
+    <div class="plan-fact-row">
+      <div class="pf-line-top"><div class="pf-name">${label}</div><div class="pf-delta ${deltaCls} num">${delta > 0 ? '+' : ''}${fmt(delta)}</div></div>
+      <div class="pf-track"><div class="pf-fact-fill" style="width:${Math.min(pct,100)}%; background:${barColor}"></div><div class="pf-plan-marker" style="left:96%"></div></div>
+      <div class="pf-numbers"><span>Факт: <span class="num">${fmt(fact)}</span></span><span>План: <span class="num">${fmt(plan)}</span></span></div>
+    </div>`;
+  };
+
+  const r = p.planRates || {};
+  const pct1 = (x) => Math.round(x * 1000) / 10;
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="verdict-banner ${p.verdict.type}">
+      <div class="verdict-icon">${verdictIcon}</div>
+      <div><div class="verdict-text-title">${p.verdict.title}</div><div class="verdict-text-sub">${p.verdict.sub}</div></div>
+    </div>
+
+    <div class="block-title">Основные показатели</div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-box-label">Стоимость проекта</div><div class="stat-box-value num">${fmt(p.total)}</div></div>
+      <div class="stat-box"><div class="stat-box-label">Оплата от клиента</div><div class="stat-box-value num">${fmt(p.paid)}</div></div>
+      <div class="stat-box"><div class="stat-box-label">Долг по проекту</div><div class="stat-box-value num">${fmt(p.debt)}</div></div>
+      <div class="stat-box"><div class="stat-box-label">Прибыль${p.hasPlan ? ' (факт / план)' : ''}</div><div class="stat-box-value num ${p.profit >= 0 ? 'pos' : 'neg'}">${fmt(p.profit)}${p.hasPlan ? ' / ' + fmt(p.planProfit) : ''}</div></div>
+    </div>
+
+    ${p.hasPlan ? `
+    <div class="block-title" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>План / Факт по затратам${p.isAutoPlan ? ' · авто (' + (AUTO_PLAN_LABELS[p.planCategory] || '') + ')' : (p.isCustomPlan ? ' · свой план' : '')}</span>
+      <button class="plan-edit-btn" onclick="togglePlanEdit()">Изменить план</button>
+    </div>
+    ${planEditFormHtml(p, r)}
+    ${pfRow(`Стройматериалы (план ${pct1(r.mat)}%)`, p.planMat, p.mat)}
+    ${pfRow(`Зарплата рабочих (план ${pct1(r.labor)}%)`, p.planLabor, p.labor)}
+    ${pfRow(`Прочие расходы (план ${pct1(r.other)}%)`, p.planOther, p.other)}
+    ${pfRow(`ЗП Стас (план ${pct1(r.stas)}%)`, p.planStas, p.stas)}
+    ${pfRow(`ЗП Саша (план ${pct1(r.sasha)}%)`, p.planSasha, p.sasha)}
+    ${pfRow(`ЗП Алекс (план ${pct1(r.alex)}%)`, p.planAlex, p.alex)}
+    ` : p.needsPlanWarning ? `
+    <div class="block-title" style="display:flex; justify-content:space-between; align-items:center;">
+      <span style="color:var(--yellow);">⚠ План не задан</span>
+      <button class="plan-edit-btn" onclick="togglePlanEdit()">Задать план</button>
+    </div>
+    ${planEditFormHtml(p, {mat:0.321, labor:0.196, other:0.047, stas:0.195, sasha:0.014, alex:0.054, profit:0.173})}
+    <div class="formula-note">Это не типовой Shed-проект — автоматический план по 2026 году к нему не применяется. Задайте план вручную кнопкой выше, либо смотрите просто факт ниже.</div>
+    <div class="meta-list" style="margin-top:12px;">
+      <div class="meta-row"><span class="meta-row-label">Стройматериалы</span><span class="meta-row-value num">${fmt(p.mat)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">Зарплата рабочих</span><span class="meta-row-value num">${fmt(p.labor)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">Прочие расходы</span><span class="meta-row-value num">${fmt(p.other)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">ЗП Стас</span><span class="meta-row-value num">${fmt(p.stas)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">ЗП Саша</span><span class="meta-row-value num">${fmt(p.sasha)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">ЗП Алекс</span><span class="meta-row-value num">${fmt(p.alex)}</span></div>
+    </div>
+    ` : `
+    <div class="block-title">Затраты (факт, без плана)</div>
+    <div class="meta-list">
+      <div class="meta-row"><span class="meta-row-label">Прочие расходы</span><span class="meta-row-value num">${fmt(p.other)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">ЗП Стас/Саша/Алекс</span><span class="meta-row-value num">${fmt(p.staff)}</span></div>
+    </div>
+    `}
+
+    <div class="block-title">Сроки и загрузка</div>
+    <div class="meta-list">
+      <div class="meta-row"><span class="meta-row-label">Оплачено от стоимости</span><span class="meta-row-value num">${p.progress}%</span></div>
+      <div class="meta-row"><span class="meta-row-label">Записей в логе ЗП (прокси дней)</span><span class="meta-row-value ${p.workdays !== null ? 'num' : 'faint'}">${p.workdays !== null ? p.workdays : 'нет данных'}</span></div>
+      <div class="meta-row" style="cursor:pointer;" onclick="editPlannedDays('${p.name.replace(/'/g,"\\'")}')"><span class="meta-row-label">Плановые дни на объекте ✎</span><span class="meta-row-value ${p.plannedDays !== null ? 'num' : 'faint'}">${p.plannedDays !== null ? p.plannedDays : 'не задано'}</span></div>
+    </div>
+  `;
+
+  document.getElementById('detail').classList.add('open');
+  document.getElementById('detail-backdrop').classList.add('open');
+  document.getElementById('detail').scrollTop = 0;
+  detailOpen = true;
+  showBackBar();
+}
+
+let currentDetailIndex = null;
+const PLAN_FIELDS = ['mat','labor','other','stas','sasha','alex','profit'];
+const PLAN_FIELD_LABELS = { mat: 'Материалы, %', labor: 'ЗП рабочих, %', other: 'Прочие расходы, %', stas: 'ЗП Стас, %', sasha: 'ЗП Саша, %', alex: 'ЗП Алекс, %', profit: 'Целевая прибыль, %' };
+
+function planEditFormHtml(p, r) {
+  const pct1 = (x) => Math.round((x || 0) * 1000) / 10;
+  return `
+    <div id="plan-edit-form" class="plan-edit-form" style="display:none;">
+      ${PLAN_FIELDS.map(f => `<div class="plan-edit-row"><label>${PLAN_FIELD_LABELS[f]}</label><input type="number" id="pe-${f}" value="${pct1(r[f])}" step="0.5"></div>`).join('')}
+      <div class="plan-edit-sum" id="pe-sum"></div>
+      <div class="plan-edit-actions">
+        <button class="plan-btn secondary" onclick="cancelPlanEdit()">Отмена</button>
+        ${p.isCustomPlan ? `<button class="plan-btn secondary" onclick="resetPlan()">${p.planCategory ? 'Сбросить на автоплан' : 'Удалить план'}</button>` : ''}
+        <button class="plan-btn primary" onclick="savePlan()">Сохранить</button>
+      </div>
+    </div>
+  `;
+}
+
+function togglePlanEdit() {
+  const form = document.getElementById('plan-edit-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (form.style.display === 'block') {
+    PLAN_FIELDS.forEach(f => document.getElementById('pe-' + f).addEventListener('input', updatePlanSum));
+    updatePlanSum();
+  }
+}
+function cancelPlanEdit() { document.getElementById('plan-edit-form').style.display = 'none'; }
+
+function readPlanForm() {
+  const vals = {};
+  PLAN_FIELDS.forEach(f => { vals[f] = parseFloat(document.getElementById('pe-' + f).value) || 0; });
+  return vals;
+}
+
+function updatePlanSum() {
+  const vals = readPlanForm();
+  const sum = PLAN_FIELDS.reduce((a,f) => a + vals[f], 0);
+  const el = document.getElementById('pe-sum');
+  el.textContent = `Сумма: ${sum.toFixed(1)}%`;
+  el.style.color = Math.abs(sum - 100) < 0.1 ? 'var(--green)' : 'var(--yellow)';
+}
+
+function savePlan() {
+  const vals = readPlanForm();
+  const p = projects[currentDetailIndex];
+  const rates = {};
+  PLAN_FIELDS.forEach(f => { rates[f] = vals[f] / 100; });
+  customPlanRates[p.name] = rates;
+  refreshProjects();
+  openDetail(currentDetailIndex);
+}
+
+function resetPlan() {
+  const p = projects[currentDetailIndex];
+  delete customPlanRates[p.name];
+  refreshProjects();
+  openDetail(currentDetailIndex);
+}
+
+function refreshProjects() {
+  projects = rawProjects.map(computeProject);
+  renderList();
+}
+
+function editPlannedDays(name) {
+  const current = plannedDaysOverrides[name] ?? '';
+  const input = window.prompt('Плановое количество рабочих дней на объекте:', current);
+  if (input === null) return; // отмена
+  const trimmed = input.trim();
+  if (trimmed === '') {
+    delete plannedDaysOverrides[name];
+  } else {
+    const val = parseFloat(trimmed);
+    if (isNaN(val) || val < 0) { alert('Введите положительное число'); return; }
+    plannedDaysOverrides[name] = val;
+  }
+  try { localStorage.setItem('rivolty-planned-days', JSON.stringify(plannedDaysOverrides)); } catch(e) {}
+  refreshProjects();
+  const idx = projects.findIndex(p => p.name === name);
+  if (idx >= 0) openDetail(idx);
+}
+
+function closeDetail() {
+  document.getElementById('detail').classList.remove('open');
+  document.getElementById('detail-backdrop').classList.remove('open');
+  detailOpen = false;
+  if (currentScreen === 'active') hideBackBar();
+}
+
+
+let closedProjects = [{"name": "Katie Holman_shed 253S Napa", "rawType": "Shed", "type": "shed", "cost": 30320.0, "paid": 30320.0, "debt": 0.0, "mat": 7876.7, "other": 2680.17, "labor": 5684.07, "stas": 5000.0, "sasha": 303.2, "alex": 1000.0, "ap": 6303.2, "profit": 7775.86, "profitPct": 25.6, "start": "2026-06-18", "end": "2026-06-30", "workdays": 11.0}, {"name": "Aleksey and Daria - screen 735", "rawType": "screen", "type": "screen", "cost": 15800.0, "paid": 15800.0, "debt": 0.0, "mat": 2092.05, "other": 0.0, "labor": 1062.5, "stas": 900.0, "sasha": 790.0, "alex": 0.0, "ap": 1690.0, "profit": 10955.45, "profitPct": 69.3, "start": "2026-05-21", "end": "2026-06-10", "workdays": 3.0}, {"name": "Sherry Guo - Permit 2016 Timberlane", "rawType": "Permit", "type": "permit", "cost": 7340.0, "paid": 7340.0, "debt": 0.0, "mat": 0.0, "other": 6120.0, "labor": 0.0, "stas": 500.0, "sasha": 0.0, "alex": 0.0, "ap": 500.0, "profit": 720.0, "profitPct": 9.8, "start": "2025-11-24", "end": "2026-05-19", "workdays": null}, {"name": "Sean and Natalie Mitchel Redwood_design", "rawType": "design", "type": "design", "cost": 500.0, "paid": 500.0, "debt": 0.0, "mat": 0.0, "other": 536.54, "labor": 0.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": -36.54, "profitPct": 0, "start": "2026-04-06", "end": "2026-04-20", "workdays": null}, {"name": "Reginald Grady 230SM_Shed Stockton", "rawType": "Shed Stockton", "type": "shed", "cost": 36040.0, "paid": 36040.0, "debt": 0.0, "mat": 11338.9, "other": 1076.62, "labor": 7892.71, "stas": 8100.0, "sasha": 360.4, "alex": 1520.0, "ap": 9980.4, "profit": 5751.37, "profitPct": 16.0, "start": "2026-04-20", "end": "2026-05-12", "workdays": 14.0}, {"name": "Corey R_shed Monterey 320 Santa Cruz", "rawType": "shed Monterey", "type": "shed", "cost": 60420.0, "paid": 60420.0, "debt": 0.0, "mat": 20588.1, "other": 4370.71, "labor": 9317.5, "stas": 10181.25, "sasha": 604.2, "alex": 3363.0, "ap": 14148.45, "profit": 11995.24, "profitPct": 19.9, "start": "2026-03-31", "end": "2026-05-09", "workdays": 16.0}, {"name": "Reginald Grady 230SM_design", "rawType": "design", "type": "design", "cost": 1000.0, "paid": 1000.0, "debt": 0.0, "mat": 0.0, "other": 205.92, "labor": 0.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 794.08, "profitPct": 79.4, "start": "2026-03-28", "end": "2026-04-01", "workdays": null}, {"name": "Corey R_Santa Cruz_design", "rawType": "design", "type": "design", "cost": 500.0, "paid": 500.0, "debt": 0.0, "mat": 0.0, "other": 162.24, "labor": 0.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 337.76, "profitPct": 67.6, "start": "2026-03-13", "end": "2026-03-30", "workdays": null}, {"name": "Gloria Perez - sunshade", "rawType": "small deal", "type": "small deal", "cost": 3900.0, "paid": 3900.0, "debt": 0.0, "mat": 337.56, "other": 0.0, "labor": 550.0, "stas": 600.0, "sasha": 0.0, "alex": 400.0, "ap": 1000.0, "profit": 2012.44, "profitPct": 51.6, "start": "2026-04-01", "end": "2026-04-01", "workdays": 1.0}, {"name": "Dr Katherine Eslao_design", "rawType": "design", "type": "design", "cost": 500.0, "paid": 500.0, "debt": 0.0, "mat": 0.0, "other": 574.07, "labor": 0.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": -74.07, "profitPct": 0, "start": "2026-03-10", "end": "2026-03-22", "workdays": null}, {"name": "Anastasia Lyudvik - Staircase 185 Woodside", "rawType": "Garden Staircase", "type": "прочее", "cost": 53693.0, "paid": 53693.0, "debt": 0.0, "mat": 13438.25, "other": 898.76, "labor": 13352.64, "stas": 13510.0, "sasha": 1000.0, "alex": 0.0, "ap": 14510.0, "profit": 11493.35, "profitPct": 21.4, "start": "2025-12-01", "end": "2026-03-25", "workdays": 36.0}, {"name": "Randy Yau - shed Monterey 30 San Pedro", "rawType": "shed", "type": "shed", "cost": 44800.0, "paid": 44800.0, "debt": 0.0, "mat": 14205.76, "other": 1009.66, "labor": 11134.58, "stas": 11300.0, "sasha": 1000.0, "alex": 2380.0, "ap": 14680.0, "profit": 3770.0, "profitPct": 8.4, "start": "2026-02-05", "end": "2026-03-22", "workdays": 24.0}, {"name": "KER H THAN_design", "rawType": "design", "type": "design", "cost": 500.0, "paid": 500.0, "debt": 0.0, "mat": 0.0, "other": 535.71, "labor": 0.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": -35.71, "profitPct": 0, "start": "2026-02-04", "end": "2026-03-10", "workdays": null}, {"name": "Anastasia Lyudvik - concrete 185 Woodside", "rawType": "small deal", "type": "small deal", "cost": 800.0, "paid": 800.0, "debt": 0.0, "mat": 18.68, "other": 0.0, "labor": 105.0, "stas": 200.0, "sasha": 0.0, "alex": 0.0, "ap": 200.0, "profit": 476.32, "profitPct": 59.5, "start": "2026-02-07", "end": "2026-02-07", "workdays": 0.3}, {"name": "Stepan Korshakov - Fence replacement", "rawType": "Fence", "type": "fence", "cost": 21200.0, "paid": 21200.0, "debt": 0.0, "mat": 5777.42, "other": 750.0, "labor": 8688.75, "stas": 3800.0, "sasha": 1000.0, "alex": 0.0, "ap": 4800.0, "profit": 1183.83, "profitPct": 5.6, "start": "2025-12-02", "end": "2026-01-27", "workdays": 19.0}, {"name": "Lester lee - Shed Monterey 1519 Belmont", "rawType": "shed", "type": "shed", "cost": 67760.0, "paid": 67760.0, "debt": 0.0, "mat": 22864.43, "other": 2127.47, "labor": 12818.69, "stas": 12170.0, "sasha": 1000.0, "alex": 4676.0, "ap": 17846.0, "profit": 12103.41, "profitPct": 17.9, "start": "2025-11-25", "end": "2026-01-30", "workdays": 27.0}, {"name": "Aleksey and Daria - fence gate 735", "rawType": "small deal", "type": "small deal", "cost": 2850.0, "paid": 2850.0, "debt": 0.0, "mat": 340.67, "other": 160.0, "labor": 864.69, "stas": 525.0, "sasha": 0.0, "alex": 0.0, "ap": 525.0, "profit": 959.64, "profitPct": 33.7, "start": "2026-01-27", "end": "2026-01-30", "workdays": 4.0}, {"name": "Aleksey and Daria - stucco wall 735", "rawType": "small deal", "type": "small deal", "cost": 350.0, "paid": 350.0, "debt": 0.0, "mat": 50.0, "other": 0.0, "labor": 210.0, "stas": 100.0, "sasha": 0.0, "alex": 0.0, "ap": 100.0, "profit": -10.0, "profitPct": 0, "start": "2026-01-29", "end": "2026-01-30", "workdays": 1.0}, {"name": "Aleksey and Daria - watering 735", "rawType": "small deal", "type": "small deal", "cost": 3700.0, "paid": 3700.0, "debt": 0.0, "mat": 1023.07, "other": 0.0, "labor": 2305.76, "stas": 1775.0, "sasha": 0.0, "alex": 0.0, "ap": 1775.0, "profit": -1403.82, "profitPct": 0, "start": "2025-11-10", "end": "2026-01-30", "workdays": 6.5}, {"name": "Benji&Alexander - Fence Panorama 202-204", "rawType": "Fence", "type": "fence", "cost": 6500.0, "paid": 6501.0, "debt": -1.0, "mat": 1622.35, "other": 1330.0, "labor": 2800.0, "stas": 1050.0, "sasha": 0.0, "alex": 0.0, "ap": 1050.0, "profit": -302.35, "profitPct": 0, "start": "2025-11-24", "end": "2025-11-28", "workdays": 5.0}, {"name": "Karthik Rishi - screen 1786 freemont", "rawType": "screen", "type": "screen", "cost": 4000.0, "paid": 4000.0, "debt": 0.0, "mat": 235.69, "other": 17.5, "labor": 150.0, "stas": 600.0, "sasha": 40.0, "alex": 400.0, "ap": 1040.0, "profit": 2556.81, "profitPct": 63.9, "start": "2025-09-21", "end": "2025-09-21", "workdays": 1.0}, {"name": "Daily City Chi ADU", "rawType": "design", "type": "design", "cost": 5000.0, "paid": 5000.0, "debt": 0.0, "mat": 0.0, "other": 2820.0, "labor": 0.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 2180.0, "profitPct": 43.6, "start": null, "end": null, "workdays": null}, {"name": "May Lee - Pergola Deck 767 Spruse SF", "rawType": "Pergola_deck", "type": "pergola", "cost": 20500.0, "paid": 20500.0, "debt": 0.0, "mat": 5863.07, "other": 580.0, "labor": 2912.5, "stas": 1720.0, "sasha": 205.0, "alex": 2000.0, "ap": 3925.0, "profit": 7219.43, "profitPct": 35.2, "start": "2025-09-15", "end": "2025-09-23", "workdays": 6.0}, {"name": "Randall W - fence, ventilation,screen", "rawType": "small deal", "type": "small deal", "cost": 2250.0, "paid": 2250.0, "debt": 0.0, "mat": 85.33, "other": 0.0, "labor": 650.0, "stas": 250.0, "sasha": 22.5, "alex": 225.0, "ap": 497.5, "profit": 1017.17, "profitPct": 45.2, "start": "2025-06-28", "end": "2025-07-25", "workdays": 2.0}, {"name": "Marma Basu - permit_electric 520 RWC ", "rawType": "permit, electric", "type": "permit", "cost": 9800.0, "paid": 9800.0, "debt": 0.0, "mat": 0.0, "other": 4987.0, "labor": 0.0, "stas": 0.0, "sasha": 98.0, "alex": 670.0, "ap": 768.0, "profit": 4045.0, "profitPct": 41.3, "start": "2025-09-03", "end": "2025-09-12", "workdays": null}, {"name": "Marma Basu - shed 520 RWC", "rawType": "shed", "type": "shed", "cost": 33950.0, "paid": 33950.0, "debt": 0.0, "mat": 8602.06, "other": 600.19, "labor": 7529.73, "stas": 3695.0, "sasha": 339.5, "alex": 1440.0, "ap": 5474.5, "profit": 11743.52, "profitPct": 34.6, "start": "2025-08-26", "end": "2025-10-08", "workdays": 16.0}, {"name": "Sagar Khedkar - Shed 6284 San Jose", "rawType": "shed", "type": "shed", "cost": 29650.0, "paid": 29650.0, "debt": 0.0, "mat": 9272.15, "other": 2200.77, "labor": 5173.48, "stas": 2040.0, "sasha": 1482.5, "alex": 1000.0, "ap": 4522.5, "profit": 8481.09, "profitPct": 28.6, "start": "2025-08-06", "end": "2025-09-13", "workdays": 17.0}, {"name": "Sagar Khedkar - AC_painting 6284 San Jose", "rawType": "small deal", "type": "small deal", "cost": 1050.0, "paid": 1050.0, "debt": 0.0, "mat": 190.05, "other": 150.0, "labor": 343.75, "stas": 120.0, "sasha": 52.5, "alex": 105.0, "ap": 277.5, "profit": 88.7, "profitPct": 8.4, "start": "2025-08-25", "end": "2025-08-25", "workdays": 1.0}, {"name": "Anastasia Lyudvik- backyard renovtn 185 ", "rawType": "design", "type": "design", "cost": 5500.0, "paid": 5500.0, "debt": 0.0, "mat": 0.0, "other": 2206.25, "labor": 0.0, "stas": 0.0, "sasha": 275.0, "alex": 0.0, "ap": 275.0, "profit": 3018.75, "profitPct": 54.9, "start": "2025-06-08", "end": "2025-07-31", "workdays": null}, {"name": "Aarthi Chandrasekaran- shed 1735 San Jose", "rawType": "shed", "type": "shed", "cost": 52250.0, "paid": 52250.0, "debt": 0.0, "mat": 18218.36, "other": 3034.9, "labor": 11349.62, "stas": 5520.0, "sasha": 522.5, "alex": 2025.0, "ap": 8067.5, "profit": 11579.61, "profitPct": 22.2, "start": "2025-07-16", "end": "2025-08-19", "workdays": 24.0}, {"name": "Aarthi Chandrasekaran- add small deal 1735", "rawType": "small deal", "type": "small deal", "cost": 1200.0, "paid": 1200.0, "debt": 0.0, "mat": 512.24, "other": 0.0, "labor": 343.75, "stas": 200.0, "sasha": 12.0, "alex": 120.0, "ap": 332.0, "profit": 12.01, "profitPct": 1.0, "start": "2025-09-18", "end": "2025-09-24", "workdays": 2.0}, {"name": "Morten Juul - Repair work", "rawType": "small deal", "type": "small deal", "cost": 2500.0, "paid": 2500.0, "debt": 0.0, "mat": 234.43, "other": 0.0, "labor": 1000.0, "stas": 440.0, "sasha": 125.0, "alex": 0.0, "ap": 565.0, "profit": 700.57, "profitPct": 28.0, "start": "2025-07-20", "end": "2025-07-20", "workdays": 1.0}, {"name": "San Bruno painting", "rawType": "small deal", "type": "small deal", "cost": 1150.0, "paid": 1150.0, "debt": 0.0, "mat": 83.98, "other": 0.0, "labor": 350.0, "stas": 100.0, "sasha": 11.5, "alex": 100.0, "ap": 211.5, "profit": 504.52, "profitPct": 43.9, "start": "2025-06-28", "end": "2025-06-28", "workdays": 1.0}, {"name": "Keith silver - san carlos №2", "rawType": "small deal", "type": "small deal", "cost": 3400.0, "paid": 3400.0, "debt": 0.0, "mat": 890.97, "other": 0.0, "labor": 485.0, "stas": 300.0, "sasha": 34.0, "alex": 340.0, "ap": 674.0, "profit": 1350.03, "profitPct": 39.7, "start": "2025-07-09", "end": "2025-07-09", "workdays": 1.0}, {"name": "Keith silver - san carlos", "rawType": "patio deck", "type": "deck", "cost": 13400.0, "paid": 13400.0, "debt": 0.0, "mat": 2640.7, "other": 280.0, "labor": 2355.0, "stas": 1600.0, "sasha": 134.0, "alex": 1340.0, "ap": 3074.0, "profit": 5050.3, "profitPct": 37.7, "start": "2025-07-03", "end": "2025-07-05", "workdays": 3.0}, {"name": "Aleksey and Daria - permit", "rawType": "design, permit", "type": "design", "cost": 8492.0, "paid": 8492.0, "debt": 0.0, "mat": 0.0, "other": 7260.0, "labor": 0.0, "stas": 0.0, "sasha": 424.6, "alex": 0.0, "ap": 424.6, "profit": 807.4, "profitPct": 9.5, "start": "2024-09-01", "end": "2025-06-01", "workdays": null}, {"name": "Harries Edwards - demo patio", "rawType": "small deal", "type": "small deal", "cost": 3200.0, "paid": 3200.0, "debt": 0.0, "mat": 172.25, "other": 748.8, "labor": 785.0, "stas": 600.0, "sasha": 32.0, "alex": 320.0, "ap": 952.0, "profit": 541.95, "profitPct": 16.9, "start": "2025-06-04", "end": "2025-06-04", "workdays": 1.0}, {"name": "KT Park - aluminium pergola 839 Sunnyvale", "rawType": "AL pergola", "type": "pergola", "cost": 21700.0, "paid": 21700.0, "debt": 0.0, "mat": 7670.9, "other": 74.8, "labor": 1431.5, "stas": 670.0, "sasha": 217.0, "alex": 2170.0, "ap": 3057.0, "profit": 9465.8, "profitPct": 43.6, "start": "2025-07-28", "end": "2025-09-04", "workdays": 7.0}, {"name": "Vikram - Викрам Рави", "rawType": "small deal", "type": "small deal", "cost": 2300.0, "paid": 2300.0, "debt": 0.0, "mat": 0.0, "other": 0.0, "labor": 1755.0, "stas": 0.0, "sasha": 115.0, "alex": 230.0, "ap": 345.0, "profit": 200.0, "profitPct": 8.7, "start": "2025-03-24", "end": "2025-04-09", "workdays": 4.0}, {"name": "Roman Yanovsky - Cooking Top 2", "rawType": "small deal", "type": "small deal", "cost": 810.0, "paid": 810.0, "debt": 0.0, "mat": 0.0, "other": 550.0, "labor": 0.0, "stas": 0.0, "sasha": 8.1, "alex": 81.0, "ap": 89.1, "profit": 170.9, "profitPct": 21.1, "start": "2025-04-12", "end": "2025-04-12", "workdays": 1.0}, {"name": "сборка шеда Lowes ", "rawType": "small deal", "type": "small deal", "cost": 3300.0, "paid": 3300.0, "debt": 0.0, "mat": 631.72, "other": 82.0, "labor": 1200.0, "stas": 0.0, "sasha": 165.0, "alex": 0.0, "ap": 165.0, "profit": 1221.28, "profitPct": 37.0, "start": "2025-03-15", "end": "2025-03-16", "workdays": 2.0}, {"name": "Karthik Rishi - Electric Patio Heater", "rawType": "Electric", "type": "прочее", "cost": 3480.0, "paid": 3480.0, "debt": 0.0, "mat": 657.72, "other": 1500.0, "labor": 0.0, "stas": 0.0, "sasha": 34.8, "alex": 348.0, "ap": 382.8, "profit": 939.48, "profitPct": 27.0, "start": "2025-03-12", "end": "2025-03-14", "workdays": 2.0}, {"name": "Таня Boulder Creek 3", "rawType": "small deal", "type": "small deal", "cost": 2200.0, "paid": 2200.0, "debt": 0.0, "mat": 337.86, "other": 100.0, "labor": 600.0, "stas": 800.0, "sasha": 110.0, "alex": 0.0, "ap": 910.0, "profit": 252.14, "profitPct": 11.5, "start": "2025-03-03", "end": "2025-03-04", "workdays": 2.0}, {"name": "Randall W - sunroom 1212", "rawType": "sunroom, deck", "type": "deck", "cost": 97200.0, "paid": 97200.0, "debt": 0.0, "mat": 16945.51, "other": 8339.84, "labor": 22330.0, "stas": 21290.0, "sasha": 972.0, "alex": 9275.0, "ap": 31537.0, "profit": 18047.65, "profitPct": 18.6, "start": "2025-03-20", "end": "2025-06-09", "workdays": 45.0}, {"name": "Jahi Jones - Patio cover", "rawType": "small deal", "type": "small deal", "cost": 1800.0, "paid": 1800.0, "debt": 0.0, "mat": 57.51, "other": 0.0, "labor": 935.0, "stas": 600.0, "sasha": 18.0, "alex": 180.0, "ap": 798.0, "profit": 9.49, "profitPct": 0.5, "start": "2025-05-17", "end": "2025-05-17", "workdays": 1.0}, {"name": "Annie Hedges - wall leak repair", "rawType": "small deal", "type": "small deal", "cost": 7600.0, "paid": 7600.0, "debt": 0.0, "mat": 232.21, "other": 320.0, "labor": 2800.0, "stas": 4260.0, "sasha": 76.0, "alex": 400.0, "ap": 4736.0, "profit": -488.21, "profitPct": 0, "start": "2025-03-07", "end": "2025-03-20", "workdays": 8.0}, {"name": "Joshua Chase - sunroom leak", "rawType": "small deal", "type": "small deal", "cost": 2050.0, "paid": 2050.0, "debt": 0.0, "mat": 63.77, "other": 0.0, "labor": 650.0, "stas": 600.0, "sasha": 20.5, "alex": 205.0, "ap": 825.5, "profit": 510.73, "profitPct": 24.9, "start": "2025-02-18", "end": "2025-02-18", "workdays": 2.0}, {"name": "Hayward установка screens", "rawType": "screen", "type": "screen", "cost": 1000.0, "paid": 1000.0, "debt": 0.0, "mat": 0.0, "other": 0.0, "labor": 200.0, "stas": 200.0, "sasha": 10.0, "alex": 100.0, "ap": 310.0, "profit": 490.0, "profitPct": 49.0, "start": "2025-02-15", "end": "2025-02-15", "workdays": 1.0}, {"name": "Daniela Grant 3171 san ramon", "rawType": "Permit", "type": "permit", "cost": 7168.0, "paid": 7168.0, "debt": 0.0, "mat": 1210.51, "other": 2197.37, "labor": 3891.25, "stas": 2410.0, "sasha": 71.68, "alex": 575.0, "ap": 3056.68, "profit": -3187.81, "profitPct": 0, "start": "2025-05-07", "end": "2025-07-23", "workdays": 12.0}, {"name": "Aleksey and Daria - paving slabs 735 San Mateo", "rawType": "Paving slabs", "type": "прочее", "cost": 28100.0, "paid": 28100.0, "debt": 0.0, "mat": 0.0, "other": 23076.26, "labor": 2999.0, "stas": 1180.0, "sasha": 1405.0, "alex": 0.0, "ap": 2585.0, "profit": -560.26, "profitPct": 0, "start": "2025-09-04", "end": "2025-09-11", "workdays": 6.0}, {"name": "Aleksey and Daria - Deck&Stairs 735", "rawType": "deck_Stairs", "type": "deck", "cost": 21500.0, "paid": 21499.97, "debt": 0.03, "mat": 2104.87, "other": 415.0, "labor": 6400.0, "stas": 5700.0, "sasha": 1075.0, "alex": 0.0, "ap": 6775.0, "profit": 5805.13, "profitPct": 27.0, "start": "2025-10-30", "end": "2025-11-25", "workdays": 10.0}, {"name": "Aleksey and Daria - fence 735", "rawType": "fence", "type": "fence", "cost": 8700.0, "paid": 8700.0, "debt": 0.0, "mat": 402.84, "other": 137.5, "labor": 2603.12, "stas": 995.0, "sasha": 435.0, "alex": 0.0, "ap": 1430.0, "profit": 4126.53, "profitPct": 47.4, "start": "2025-08-04", "end": "2025-11-07", "workdays": 4.5}, {"name": "Aleksey and Daria - garage door 735", "rawType": "garage door", "type": "прочее", "cost": 7500.0, "paid": 7500.0, "debt": 0.0, "mat": 16.41, "other": 465.0, "labor": 2656.25, "stas": 1490.0, "sasha": 375.0, "alex": 0.0, "ap": 1865.0, "profit": 2497.34, "profitPct": 33.3, "start": "2025-12-08", "end": "2025-12-16", "workdays": 5.0}, {"name": "Aleksey and Daria - Patio/deck 735 San mateo", "rawType": "patio deck", "type": "deck", "cost": 99021.18, "paid": 99021.18, "debt": 0.0, "mat": 26404.67, "other": 14115.41, "labor": 53368.85, "stas": 34680.0, "sasha": 4951.06, "alex": 0.0, "ap": 39631.06, "profit": -34498.81, "profitPct": 0, "start": "2025-06-16", "end": "2025-11-04", "workdays": 86.0}, {"name": "Aleksey and Daria -  pergola update 735", "rawType": "small deal", "type": "small deal", "cost": 1600.0, "paid": 1600.0, "debt": 0.0, "mat": 188.64, "other": 0.0, "labor": 750.0, "stas": 500.0, "sasha": 80.0, "alex": 0.0, "ap": 580.0, "profit": 81.36, "profitPct": 5.1, "start": "2025-11-07", "end": "2025-11-07", "workdays": 1.0}, {"name": "Aleksey and Daria  - neighbors_fence", "rawType": "small deal", "type": "small deal", "cost": 2400.0, "paid": 2400.0, "debt": 0.0, "mat": 0.0, "other": 0.0, "labor": 0.0, "stas": 0.0, "sasha": 120.0, "alex": 0.0, "ap": 120.0, "profit": 2280.0, "profitPct": 95.0, "start": "2025-08-10", "end": "2025-08-10", "workdays": 1.0}, {"name": "Aleksey and Daria - DEMO, concrete", "rawType": "small deal", "type": "small deal", "cost": 3500.0, "paid": 3500.0, "debt": 0.0, "mat": 0.0, "other": 1340.02, "labor": 950.0, "stas": 600.0, "sasha": 175.0, "alex": 0.0, "ap": 775.0, "profit": 434.98, "profitPct": 12.4, "start": "2025-08-21", "end": "2025-08-22", "workdays": 2.0}, {"name": "Bo Li & Shuo Na - house remodelling  781 Sunnyvale", "rawType": "Remodeling", "type": "прочее", "cost": 137100.0, "paid": 137100.0, "debt": 0.0, "mat": 18989.65, "other": 26048.39, "labor": 22975.03, "stas": 16320.0, "sasha": 1371.0, "alex": 12550.0, "ap": 30241.0, "profit": 38845.93, "profitPct": 28.3, "start": "2025-05-05", "end": "2025-08-26", "workdays": 47.0}, {"name": "Bo Li & Shuo Na - tile replacement  781 Sunnyvale", "rawType": "small deal", "type": "small deal", "cost": 2200.0, "paid": 2200.0, "debt": 0.0, "mat": 449.63, "other": 1200.0, "labor": 125.0, "stas": 160.0, "sasha": 22.0, "alex": 220.0, "ap": 402.0, "profit": 23.37, "profitPct": 1.1, "start": "2025-08-10", "end": "2025-08-19", "workdays": 4.0}, {"name": "Padma Mullapudi - pergola", "rawType": "pergola", "type": "pergola", "cost": 11700.0, "paid": 11700.0, "debt": 0.0, "mat": 6710.82, "other": 1077.25, "labor": 3300.0, "stas": 2800.0, "sasha": 117.0, "alex": 990.0, "ap": 3907.0, "profit": -3295.07, "profitPct": 0, "start": "2025-01-24", "end": "2025-02-15", "workdays": 7.0}, {"name": "Karthik Rishi Krishnamurthi- pergola ", "rawType": "AL pergola", "type": "pergola", "cost": 21800.0, "paid": 21800.0, "debt": 0.0, "mat": 8620.38, "other": 138.55, "labor": 1580.0, "stas": 2500.0, "sasha": 218.0, "alex": 2180.0, "ap": 4898.0, "profit": 6563.07, "profitPct": 30.1, "start": "2025-03-04", "end": "2025-03-10", "workdays": 5.0}, {"name": "Petr Shepelev - Campbell", "rawType": "Repair work", "type": "прочее", "cost": 49366.0, "paid": 49366.0, "debt": 0.0, "mat": 2033.45, "other": 11713.41, "labor": 17600.0, "stas": 19200.0, "sasha": 2468.3, "alex": 0.0, "ap": 21668.3, "profit": -3649.16, "profitPct": 0, "start": "2025-01-08", "end": "2025-02-23", "workdays": 33.0}, {"name": "Pleasant Hill Dmitrii ADU", "rawType": "design", "type": "design", "cost": 5900.0, "paid": 5900.0, "debt": 0.0, "mat": 0.0, "other": 1300.0, "labor": 1500.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 3100.0, "profitPct": 52.5, "start": null, "end": null, "workdays": null}, {"name": "SSF demo", "rawType": "small deal", "type": "small deal", "cost": 3000.0, "paid": 3000.0, "debt": 0.0, "mat": 0.0, "other": 0.0, "labor": 450.0, "stas": 0.0, "sasha": 0.0, "alex": 300.0, "ap": 300.0, "profit": 2250.0, "profitPct": 75.0, "start": "2024-12-31", "end": "2024-12-31", "workdays": 1.0}, {"name": "Prasanna Duraijai - Side Wall ", "rawType": "small deal", "type": "small deal", "cost": 3000.0, "paid": 3000.0, "debt": 0.0, "mat": 492.79, "other": 0.0, "labor": 250.0, "stas": 0.0, "sasha": 0.0, "alex": 300.0, "ap": 300.0, "profit": 1957.21, "profitPct": 65.2, "start": "2024-12-31", "end": "2024-12-31", "workdays": 1.0}, {"name": "Julia - Shed", "rawType": "shed", "type": "shed", "cost": 23850.0, "paid": 23850.0, "debt": 0.0, "mat": 7673.44, "other": 537.6, "labor": 4410.0, "stas": 0.0, "sasha": 0.0, "alex": 1000.0, "ap": 1000.0, "profit": 10228.96, "profitPct": 42.9, "start": "2024-11-24", "end": "2024-12-06", "workdays": 8.0}, {"name": "Brenda Willett - Deck", "rawType": "deck", "type": "deck", "cost": 13000.0, "paid": 13000.0, "debt": 0.0, "mat": 1483.07, "other": 99.2, "labor": 5050.0, "stas": 0.0, "sasha": 0.0, "alex": 1300.0, "ap": 1300.0, "profit": 5067.73, "profitPct": 39.0, "start": "2024-11-01", "end": "2024-12-01", "workdays": 9.0}, {"name": "Daniel Bogart - Patio Cover ", "rawType": "patio cover", "type": "patio", "cost": 11000.0, "paid": 11000.0, "debt": 0.0, "mat": 3326.28, "other": 430.0, "labor": 3100.0, "stas": 0.0, "sasha": 0.0, "alex": 1100.0, "ap": 1100.0, "profit": 3043.72, "profitPct": 27.7, "start": "2024-10-29", "end": "2024-11-08", "workdays": 8.0}, {"name": "Rikki - Patio Cover ", "rawType": "patio cover", "type": "patio", "cost": 7000.0, "paid": 7000.0, "debt": 0.0, "mat": 2175.0, "other": 200.0, "labor": 750.0, "stas": 0.0, "sasha": 0.0, "alex": 700.0, "ap": 700.0, "profit": 3175.0, "profitPct": 45.4, "start": "2024-11-04", "end": "2024-11-04", "workdays": 1.0}, {"name": "Ross Stackhouse- Railing", "rawType": "Railing", "type": "прочее", "cost": 5200.0, "paid": 5200.0, "debt": 0.0, "mat": 3131.1, "other": 0.0, "labor": 1050.0, "stas": 0.0, "sasha": 0.0, "alex": 530.0, "ap": 530.0, "profit": 488.9, "profitPct": 9.4, "start": "2024-10-26", "end": "2024-12-07", "workdays": 3.0}, {"name": "Los Gatos alum pergola  LEONID", "rawType": "pergola", "type": "pergola", "cost": 9500.0, "paid": 9500.0, "debt": 0.0, "mat": 7904.81, "other": 2290.0, "labor": 1500.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": -2194.81, "profitPct": 0, "start": "2024-11-30", "end": "2024-11-30", "workdays": 1.0}, {"name": "Los Gatos Patio cover Jeffry ", "rawType": "patio cover", "type": "patio", "cost": 18500.0, "paid": 18500.0, "debt": 0.0, "mat": 5178.44, "other": 843.75, "labor": 6600.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 5877.81, "profitPct": 31.8, "start": "2024-10-31", "end": "2024-11-13", "workdays": 10.0}, {"name": "Vikram Ravi - Patio Cover", "rawType": "patio cover", "type": "patio", "cost": 81200.0, "paid": 81200.0, "debt": 0.0, "mat": 30181.94, "other": 3168.0, "labor": 23150.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 25036.06, "profitPct": 30.8, "start": "2024-09-05", "end": "2024-11-08", "workdays": 45.0}, {"name": "Jonathan - Shade", "rawType": "small deal", "type": "small deal", "cost": 4500.0, "paid": 4500.0, "debt": 0.0, "mat": 1085.95, "other": 0.0, "labor": 250.0, "stas": 0.0, "sasha": 0.0, "alex": 450.0, "ap": 450.0, "profit": 2714.05, "profitPct": 60.3, "start": "2024-09-14", "end": "2024-09-14", "workdays": 1.0}, {"name": "Anand Kamini - Deck ", "rawType": "small deal", "type": "small deal", "cost": 3000.0, "paid": 3000.0, "debt": 0.0, "mat": 530.06, "other": 75.32, "labor": 850.0, "stas": 0.0, "sasha": 0.0, "alex": 300.0, "ap": 300.0, "profit": 1244.62, "profitPct": 41.5, "start": "2024-08-19", "end": "2024-08-20", "workdays": 2.0}, {"name": "Samantha - Pergola repair", "rawType": "small deal", "type": "small deal", "cost": 3050.0, "paid": 3050.0, "debt": 0.0, "mat": 434.5, "other": 0.0, "labor": 400.0, "stas": 0.0, "sasha": 0.0, "alex": 265.0, "ap": 265.0, "profit": 1950.5, "profitPct": 64.0, "start": "2024-08-14", "end": "2024-08-15", "workdays": 2.0}, {"name": "Aliaksei Yulin - Roofing", "rawType": "Roof", "type": "roof", "cost": 18000.0, "paid": 18000.0, "debt": 0.0, "mat": 4570.98, "other": 1023.19, "labor": 4995.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 7410.83, "profitPct": 41.2, "start": "2024-08-05", "end": "2024-08-13", "workdays": 6.0}, {"name": "Harriet Ukai - Deck", "rawType": "deck", "type": "deck", "cost": 4600.0, "paid": 4600.0, "debt": 0.0, "mat": 1073.23, "other": 0.0, "labor": 1100.0, "stas": 0.0, "sasha": 0.0, "alex": 460.0, "ap": 460.0, "profit": 1966.77, "profitPct": 42.8, "start": "2024-07-31", "end": "2024-08-01", "workdays": 2.0}, {"name": "Dennis Lim - Shed", "rawType": "shed", "type": "shed", "cost": 22300.0, "paid": 22300.0, "debt": 0.0, "mat": 8220.63, "other": 1411.0, "labor": 4550.0, "stas": 0.0, "sasha": 0.0, "alex": 500.0, "ap": 500.0, "profit": 7618.37, "profitPct": 34.2, "start": "2024-07-26", "end": "2024-08-18", "workdays": 13.0}, {"name": "Jeffrey Baron - Deck", "rawType": "deck", "type": "deck", "cost": 61771.0, "paid": 61771.0, "debt": 0.0, "mat": 25433.84, "other": 8937.16, "labor": 20270.0, "stas": 0.0, "sasha": 0.0, "alex": 5000.0, "ap": 5000.0, "profit": 2130.0, "profitPct": 3.4, "start": "2024-09-17", "end": "2024-10-23", "workdays": 30.0}, {"name": "Hong Clark", "rawType": "small deal", "type": "small deal", "cost": 1400.0, "paid": 1400.0, "debt": 0.0, "mat": 0.0, "other": 0.0, "labor": 1150.0, "stas": 0.0, "sasha": 0.0, "alex": 140.0, "ap": 140.0, "profit": 110.0, "profitPct": 7.9, "start": "2024-07-24", "end": "2024-07-25", "workdays": 2.0}, {"name": "Hillsborough козырек", "rawType": "small deal", "type": "small deal", "cost": 1650.0, "paid": 1650.0, "debt": 0.0, "mat": 130.0, "other": 0.0, "labor": 720.0, "stas": 0.0, "sasha": 0.0, "alex": 150.0, "ap": 150.0, "profit": 650.0, "profitPct": 39.4, "start": "2024-07-20", "end": "2024-07-20", "workdays": 1.0}, {"name": "Varsha - Deck 21278 Bank Mill", "rawType": "deck", "type": "deck", "cost": 45900.0, "paid": 45900.0, "debt": 0.0, "mat": 16415.7, "other": 363.56, "labor": 11500.0, "stas": 0.0, "sasha": 0.0, "alex": 4590.0, "ap": 4590.0, "profit": 13030.74, "profitPct": 28.4, "start": "2024-07-01", "end": "2024-08-14", "workdays": 20.0}, {"name": "Randall W - House Repaint", "rawType": "Painting", "type": "прочее", "cost": 11000.0, "paid": 11000.0, "debt": 0.0, "mat": 1193.5, "other": 99.81, "labor": 2500.0, "stas": 0.0, "sasha": 0.0, "alex": 1100.0, "ap": 1100.0, "profit": 6106.69, "profitPct": 55.5, "start": "2024-06-18", "end": "2024-06-22", "workdays": 5.0}, {"name": "boulder Crek рекмонт деки", "rawType": "small deal", "type": "small deal", "cost": 2100.0, "paid": 2100.0, "debt": 0.0, "mat": 35.65, "other": 0.0, "labor": 1650.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 414.35, "profitPct": 19.7, "start": "2024-06-12", "end": "2024-06-14", "workdays": 3.0}, {"name": "Randall W - Deck", "rawType": "deck", "type": "deck", "cost": 25600.0, "paid": 25600.0, "debt": 0.0, "mat": 7346.7, "other": 240.0, "labor": 3060.0, "stas": 0.0, "sasha": 0.0, "alex": 2370.0, "ap": 2370.0, "profit": 12583.3, "profitPct": 49.2, "start": "2024-05-28", "end": "2024-06-04", "workdays": 6.0}, {"name": "Saurabh Tiwiri - Pergola", "rawType": "pergola", "type": "pergola", "cost": 29900.0, "paid": 29900.0, "debt": 0.0, "mat": 5813.47, "other": 1082.5, "labor": 5750.0, "stas": 0.0, "sasha": 0.0, "alex": 2000.0, "ap": 2000.0, "profit": 15254.03, "profitPct": 51.0, "start": "2024-05-13", "end": "2024-05-24", "workdays": 11.0}, {"name": "Boulder Crek покраска дома Tanya", "rawType": "Painting", "type": "прочее", "cost": 9000.0, "paid": 9000.0, "debt": 0.0, "mat": 951.83, "other": 67.5, "labor": 4150.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 3830.67, "profitPct": 42.6, "start": "2024-04-29", "end": "2024-05-11", "workdays": 10.0}, {"name": "San Jose замена поста", "rawType": "small deal", "type": "small deal", "cost": 1050.0, "paid": 1050.0, "debt": 0.0, "mat": 59.3, "other": 0.0, "labor": 250.0, "stas": 0.0, "sasha": 0.0, "alex": 110.0, "ap": 110.0, "profit": 630.7, "profitPct": 60.1, "start": "2024-04-29", "end": "2024-04-29", "workdays": 1.0}, {"name": "Anthony - patio screen", "rawType": "Screen", "type": "screen", "cost": 2800.0, "paid": 2800.0, "debt": 0.0, "mat": 1049.0, "other": 0.0, "labor": 150.0, "stas": 0.0, "sasha": 0.0, "alex": 280.0, "ap": 280.0, "profit": 1321.0, "profitPct": 47.2, "start": "2024-04-29", "end": "2024-04-29", "workdays": 1.0}, {"name": "Julie Holm - Patio repair ", "rawType": "small deal", "type": "small deal", "cost": 3250.0, "paid": 3250.0, "debt": 0.0, "mat": 421.22, "other": 101.0, "labor": 200.0, "stas": 0.0, "sasha": 0.0, "alex": 325.0, "ap": 325.0, "profit": 2202.78, "profitPct": 67.8, "start": "2024-04-23", "end": "2024-04-23", "workdays": 1.0}, {"name": "Karen Hunt - polycarbonate roof", "rawType": "Roof", "type": "roof", "cost": 9500.0, "paid": 9500.0, "debt": 0.0, "mat": 7308.13, "other": 65.0, "labor": 2800.0, "stas": 0.0, "sasha": 0.0, "alex": 700.0, "ap": 700.0, "profit": -1373.13, "profitPct": 0, "start": "2024-04-16", "end": "2024-05-26", "workdays": 6.0}, {"name": "Dr Tan - Patio cover", "rawType": "patio cover", "type": "patio", "cost": 58750.0, "paid": 58750.0, "debt": 0.0, "mat": 10474.32, "other": 9645.15, "labor": 10000.0, "stas": 0.0, "sasha": 0.0, "alex": 4800.0, "ap": 4800.0, "profit": 23830.53, "profitPct": 40.6, "start": "2024-03-19", "end": "2024-04-25", "workdays": 25.0}, {"name": "Gloria Perez - pergola", "rawType": "pergola", "type": "pergola", "cost": 4900.0, "paid": 4900.0, "debt": 0.0, "mat": 1753.36, "other": 500.0, "labor": 980.0, "stas": 0.0, "sasha": 0.0, "alex": 300.0, "ap": 300.0, "profit": 1366.64, "profitPct": 27.9, "start": "2024-03-31", "end": "2024-03-31", "workdays": 3.0}, {"name": "SF рейки маянг", "rawType": "small deal", "type": "small deal", "cost": 6000.0, "paid": 6000.0, "debt": 0.0, "mat": 857.77, "other": 0.0, "labor": 500.0, "stas": 0.0, "sasha": 0.0, "alex": 600.0, "ap": 600.0, "profit": 4042.23, "profitPct": 67.4, "start": "2024-02-20", "end": "2024-02-20", "workdays": 2.0}, {"name": "Nelly Sausalito - pergola", "rawType": "pergola", "type": "pergola", "cost": 5300.0, "paid": 5300.0, "debt": 0.0, "mat": 1372.12, "other": 16.0, "labor": 500.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 3411.88, "profitPct": 64.4, "start": "2024-02-12", "end": "2024-02-13", "workdays": 2.0}, {"name": "Boulder Crek shed", "rawType": "shed", "type": "shed", "cost": 20000.0, "paid": 20000.0, "debt": 0.0, "mat": 7371.0, "other": 230.0, "labor": 5250.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 7149.0, "profitPct": 35.7, "start": "2023-12-15", "end": "2023-12-23", "workdays": 5.0}, {"name": "Mark/Amanda", "rawType": "Repair work", "type": "прочее", "cost": 28050.0, "paid": 28050.0, "debt": 0.0, "mat": 8615.0, "other": 1363.0, "labor": 7250.0, "stas": 0.0, "sasha": 0.0, "alex": 2000.0, "ap": 2000.0, "profit": 8822.0, "profitPct": 31.5, "start": "2023-11-20", "end": "2023-12-11", "workdays": 12.0}, {"name": "Bella/Roman балкон/шед", "rawType": "balcony/shed", "type": "shed", "cost": 98250.0, "paid": 98250.0, "debt": 0.0, "mat": 38532.0, "other": 1761.0, "labor": 28050.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 29907.0, "profitPct": 30.4, "start": "2023-10-19", "end": "2023-12-09", "workdays": 44.0}, {"name": "Peter балкон балки ", "rawType": "balcony", "type": "прочее", "cost": 7000.0, "paid": 7000.0, "debt": 0.0, "mat": 2170.0, "other": 0.0, "labor": 2550.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 2280.0, "profitPct": 32.6, "start": "2023-09-20", "end": "2023-09-26", "workdays": 5.0}, {"name": "Mayank Yadav 2 перголы Сан Франциско", "rawType": "pergola", "type": "pergola", "cost": 28500.0, "paid": 28500.0, "debt": 0.0, "mat": 7595.0, "other": 1197.0, "labor": 7250.0, "stas": 0.0, "sasha": 0.0, "alex": 3460.0, "ap": 3460.0, "profit": 8998.0, "profitPct": 31.6, "start": "2023-09-14", "end": "2023-10-12", "workdays": 16.0}, {"name": "крыша Boulder Creek / Николай", "rawType": "roof", "type": "roof", "cost": 31400.0, "paid": 31400.0, "debt": 0.0, "mat": 11716.0, "other": 957.0, "labor": 7000.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 11727.0, "profitPct": 37.3, "start": "2023-09-14", "end": "2023-09-22", "workdays": 6.0}, {"name": "KT Park  проект Навес голф ", "rawType": "canopy", "type": "прочее", "cost": 11000.0, "paid": 11000.0, "debt": 0.0, "mat": 5518.0, "other": 450.0, "labor": 2140.0, "stas": 0.0, "sasha": 0.0, "alex": 1110.0, "ap": 1110.0, "profit": 1782.0, "profitPct": 16.2, "start": "2023-08-19", "end": "2023-08-29", "workdays": 8.0}, {"name": "Whitney Guido pergola", "rawType": "pergola", "type": "pergola", "cost": 28750.0, "paid": 28750.0, "debt": 0.0, "mat": 9696.0, "other": 150.0, "labor": 10170.0, "stas": 0.0, "sasha": 0.0, "alex": 1800.0, "ap": 1800.0, "profit": 6934.0, "profitPct": 24.1, "start": "2023-07-20", "end": "2023-10-13", "workdays": 36.0}, {"name": "крыша Mountain View / Света", "rawType": "roof", "type": "roof", "cost": 18000.0, "paid": 18000.0, "debt": 0.0, "mat": 6447.0, "other": 1015.0, "labor": 2600.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 7938.0, "profitPct": 44.1, "start": "2023-05-29", "end": "2023-06-02", "workdays": 5.0}, {"name": "дом Олеся $28590+доп $2600", "rawType": "Repair work", "type": "прочее", "cost": 31190.0, "paid": 31190.0, "debt": 0.0, "mat": 0.0, "other": 0.0, "labor": 10650.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 20540.0, "profitPct": 65.9, "start": "2023-04-10", "end": "2023-05-25", "workdays": 33.0}, {"name": "Дом Брисбан/окна-навес/Вадим", "rawType": "canopy", "type": "прочее", "cost": 28350.0, "paid": 28350.0, "debt": 0.0, "mat": 2575.0, "other": 58.0, "labor": 8082.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 17635.0, "profitPct": 62.2, "start": "2023-02-20", "end": "2023-04-07", "workdays": 25.0}, {"name": "Deck  Степан Walnut Greek", "rawType": "deck", "type": "deck", "cost": 21950.0, "paid": 21950.0, "debt": 0.0, "mat": 7321.41, "other": 413.0, "labor": 4231.25, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 9984.34, "profitPct": 45.5, "start": "2023-01-17", "end": "2023-01-24", "workdays": 5.0}, {"name": "Камин Мерген СФ", "rawType": "small deal", "type": "small deal", "cost": 3691.0, "paid": 3691.0, "debt": 0.0, "mat": 541.0, "other": 41.0, "labor": 960.0, "stas": 0.0, "sasha": 0.0, "alex": 0.0, "ap": 0.0, "profit": 2149.0, "profitPct": 58.2, "start": "2023-01-09", "end": "2023-01-13", "workdays": 4.0}]
+;
+const marketingByClient = {"fb": {"closed": [{"client": "Katie Holman", "names": ["Katie Holman_shed 253S Napa"], "cost": 30320.0, "profit": 7775.86, "year": "2026"}, {"client": "Sean and Natalie Mitchel Redwood", "names": ["Sean and Natalie Mitchel Redwood_design"], "cost": 500.0, "profit": -36.54, "year": "2026"}, {"client": "Corey R", "names": ["Corey R_shed Monterey 320 Santa Cruz", "Corey R_Santa Cruz_design"], "cost": 60920.0, "profit": 12333.0, "year": "2026"}, {"client": "Dr Katherine Eslao", "names": ["Dr Katherine Eslao_design"], "cost": 500.0, "profit": -74.07, "year": "2026"}, {"client": "Bo Li & Shuo Na", "names": ["Bo Li & Shuo Na - house remodelling  781 Sunnyvale", "Bo Li & Shuo Na - tile replacement  781 Sunnyvale"], "cost": 139300.0, "profit": 38869.3, "year": "2025"}, {"client": "Pleasant Hill Dmitrii ADU", "names": ["Pleasant Hill Dmitrii ADU"], "cost": 5900.0, "profit": 3100.0, "year": null}, {"client": "Julia", "names": ["Julia - Shed"], "cost": 23850.0, "profit": 10228.96, "year": "2024"}, {"client": "Dennis Lim", "names": ["Dennis Lim - Shed"], "cost": 22300.0, "profit": 7618.37, "year": "2024"}, {"client": "Peter балкон балки", "names": ["Peter балкон балки "], "cost": 7000.0, "profit": 2280.0, "year": "2023"}, {"client": "Камин Мерген СФ", "names": ["Камин Мерген СФ"], "cost": 3691.0, "profit": 2149.0, "year": "2023"}], "active": [{"client": "Chintan Turakhia", "names": ["Chintan Turakhia _design"], "cost": 600.0, "profit": -96.79, "year": "2026"}, {"client": "William Pu Golf Simulator Shed", "names": ["William Pu Golf Simulator Shed_design"], "cost": 1200.0, "profit": 1200.0, "year": "2026"}, {"client": "Judy Fuentebella SM shed pool", "names": ["Judy Fuentebella SM shed pool_design"], "cost": 1500.0, "profit": 1500.0, "year": "2026"}, {"client": "Dr Katherine Eslao", "names": ["Dr Katherine Eslao_permit", "Dr Katherine Eslao_shed Stockton Portola V"], "cost": 86209.75, "profit": 67058.58, "year": "2026"}, {"client": "Sean and Natalie Mitchel Redwood", "names": ["Sean and Natalie Mitchel Redwood_shed"], "cost": 56880.0, "profit": 17921.53, "year": "2026"}]}, "yelp": {"closed": [{"client": "Sherry Guo", "names": ["Sherry Guo - Permit 2016 Timberlane"], "cost": 7340.0, "profit": 720.0, "year": "2025"}, {"client": "Gloria Perez", "names": ["Gloria Perez - sunshade", "Gloria Perez - pergola"], "cost": 8800.0, "profit": 3379.08, "year": "2024"}, {"client": "Karthik Rishi", "names": ["Karthik Rishi - screen 1786 freemont", "Karthik Rishi - Electric Patio Heater"], "cost": 7480.0, "profit": 3496.29, "year": "2025"}, {"client": "May Lee", "names": ["May Lee - Pergola Deck 767 Spruse SF"], "cost": 20500.0, "profit": 7219.43, "year": "2025"}, {"client": "Randall W", "names": ["Randall W - fence, ventilation,screen", "Randall W - sunroom 1212", "Randall W - House Repaint", "Randall W - Deck"], "cost": 136050.0, "profit": 37754.81, "year": "2024"}, {"client": "Marma Basu", "names": ["Marma Basu - permit_electric 520 RWC ", "Marma Basu - shed 520 RWC"], "cost": 43750.0, "profit": 15788.52, "year": "2025"}, {"client": "Aarthi Chandrasekaran", "names": ["Aarthi Chandrasekaran- shed 1735 San Jose", "Aarthi Chandrasekaran- add small deal 1735"], "cost": 53450.0, "profit": 11591.62, "year": "2025"}, {"client": "Harries Edwards", "names": ["Harries Edwards - demo patio"], "cost": 3200.0, "profit": 541.95, "year": "2025"}, {"client": "KT Park", "names": ["KT Park - aluminium pergola 839 Sunnyvale"], "cost": 21700.0, "profit": 9465.8, "year": "2025"}, {"client": "Jahi Jones", "names": ["Jahi Jones - Patio cover"], "cost": 1800.0, "profit": 9.49, "year": "2025"}, {"client": "Joshua Chase", "names": ["Joshua Chase - sunroom leak"], "cost": 2050.0, "profit": 510.73, "year": "2025"}, {"client": "Hayward установка screens", "names": ["Hayward установка screens"], "cost": 1000.0, "profit": 490.0, "year": "2025"}, {"client": "Daniela Grant 3171 san ramon", "names": ["Daniela Grant 3171 san ramon"], "cost": 7168.0, "profit": -3187.81, "year": "2025"}, {"client": "Padma Mullapudi", "names": ["Padma Mullapudi - pergola"], "cost": 11700.0, "profit": -3295.07, "year": "2025"}, {"client": "Karthik Rishi Krishnamurthi", "names": ["Karthik Rishi Krishnamurthi- pergola "], "cost": 21800.0, "profit": 6563.07, "year": "2024"}, {"client": "SSF demo", "names": ["SSF demo"], "cost": 3000.0, "profit": 2250.0, "year": "2024"}, {"client": "Prasanna Duraijai", "names": ["Prasanna Duraijai - Side Wall "], "cost": 3000.0, "profit": 1957.21, "year": "2024"}, {"client": "Brenda Willett", "names": ["Brenda Willett - Deck"], "cost": 13000.0, "profit": 5067.73, "year": "2024"}, {"client": "Daniel Bogart", "names": ["Daniel Bogart - Patio Cover "], "cost": 11000.0, "profit": 3043.72, "year": "2024"}, {"client": "Rikki", "names": ["Rikki - Patio Cover "], "cost": 7000.0, "profit": 3175.0, "year": "2024"}, {"client": "Ross Stackhouse", "names": ["Ross Stackhouse- Railing"], "cost": 5200.0, "profit": 488.9, "year": "2024"}, {"client": "Los Gatos Patio cover Jeffry", "names": ["Los Gatos Patio cover Jeffry "], "cost": 18500.0, "profit": 5877.81, "year": "2024"}, {"client": "Jonathan", "names": ["Jonathan - Shade"], "cost": 4500.0, "profit": 2714.05, "year": "2024"}, {"client": "Anand Kamini", "names": ["Anand Kamini - Deck "], "cost": 3000.0, "profit": 1244.62, "year": "2024"}, {"client": "Samantha", "names": ["Samantha - Pergola repair"], "cost": 3050.0, "profit": 1950.5, "year": "2024"}, {"client": "Harriet Ukai", "names": ["Harriet Ukai - Deck"], "cost": 4600.0, "profit": 1966.77, "year": "2024"}, {"client": "Jeffrey Baron", "names": ["Jeffrey Baron - Deck"], "cost": 61771.0, "profit": 2130.0, "year": "2024"}, {"client": "Hong Clark", "names": ["Hong Clark"], "cost": 1400.0, "profit": 110.0, "year": "2024"}, {"client": "Varsha", "names": ["Varsha - Deck 21278 Bank Mill"], "cost": 45900.0, "profit": 13030.74, "year": "2024"}, {"client": "Saurabh Tiwiri", "names": ["Saurabh Tiwiri - Pergola"], "cost": 29900.0, "profit": 15254.03, "year": "2024"}, {"client": "San Jose замена поста", "names": ["San Jose замена поста"], "cost": 1050.0, "profit": 630.7, "year": "2024"}, {"client": "Anthony", "names": ["Anthony - patio screen"], "cost": 2800.0, "profit": 1321.0, "year": "2024"}, {"client": "Julie Holm", "names": ["Julie Holm - Patio repair "], "cost": 3250.0, "profit": 2202.78, "year": "2024"}, {"client": "Karen Hunt", "names": ["Karen Hunt - polycarbonate roof"], "cost": 9500.0, "profit": -1373.13, "year": "2024"}, {"client": "SF рейки маянг", "names": ["SF рейки маянг"], "cost": 6000.0, "profit": 4042.23, "year": "2024"}, {"client": "Mark/Amanda", "names": ["Mark/Amanda"], "cost": 28050.0, "profit": 8822.0, "year": "2023"}, {"client": "Mayank Yadav 2 перголы Сан Франциско", "names": ["Mayank Yadav 2 перголы Сан Франциско"], "cost": 28500.0, "profit": 8998.0, "year": "2023"}, {"client": "KT Park  проект Навес голф", "names": ["KT Park  проект Навес голф "], "cost": 11000.0, "profit": 1782.0, "year": "2023"}, {"client": "Whitney Guido pergola", "names": ["Whitney Guido pergola"], "cost": 28750.0, "profit": 6934.0, "year": "2023"}], "active": [{"client": "Yidong Ju & Marius Renn", "names": ["Yidong Ju & Marius Renn - pergola 260 Moutain"], "cost": 39250.0, "profit": 24026.79, "year": "2025"}, {"client": "Sherry Guo", "names": ["Sherry Guo - office Shed san mateo"], "cost": 44500.0, "profit": 43055.0, "year": "2025"}]}};
+;
+let alexProjectsData = [{"name": "Liam Foley Shed SF_cube shed 1646 SF", "cost": 40420.0, "profit": 35606.89, "alexPay": -1252.0, "contractDate": "2026-07-31", "endDate": null, "year": "2026", "yearEnd": null, "status": "waiting for work"}, {"name": "Yidong Ju & Marius Renn - pergola 260 Moutain", "cost": 39250.0, "profit": 24026.79, "alexPay": -3925.0, "contractDate": "2025-06-05", "endDate": null, "year": "2025", "yearEnd": null, "status": "in progress"}, {"name": "Daniel Bogart - shed 3443 Santa Rosa", "cost": 50471.0, "profit": 3537.56, "alexPay": -2815.0, "contractDate": "2025-07-30", "endDate": null, "year": "2025", "yearEnd": null, "status": "in progress"}, {"name": "KER H THAN_SHED 3621 Florence", "cost": 35460.0, "profit": 24544.66, "alexPay": -1596.0, "contractDate": "2026-03-02", "endDate": null, "year": "2026", "yearEnd": null, "status": "in progress"}, {"name": "Sherry Guo - office Shed san mateo", "cost": 44500.0, "profit": 43055.0, "alexPay": -1000.0, "contractDate": "2025-10-27", "endDate": null, "year": "2025", "yearEnd": null, "status": "coordination"}, {"name": "Katie Holman_shed 253S Napa", "cost": 30320.0, "profit": 7775.86, "alexPay": -1000.0, "contractDate": "2026-06-08", "endDate": "2026-06-30", "year": "2026", "yearEnd": "2026", "status": "done"}, {"name": "Reginald Grady 230SM_Shed Stockton", "cost": 36040.0, "profit": 5751.37, "alexPay": -1520.0, "contractDate": "2026-03-31", "endDate": "2026-05-12", "year": "2026", "yearEnd": "2026", "status": "done"}, {"name": "Corey R_shed Monterey 320 Santa Cruz", "cost": 60420.0, "profit": 11995.24, "alexPay": -3363.0, "contractDate": "2026-03-30", "endDate": "2026-05-09", "year": "2026", "yearEnd": "2026", "status": "done"}, {"name": "Gloria Perez - sunshade", "cost": 3900.0, "profit": 2012.44, "alexPay": -400.0, "contractDate": "2026-04-01", "endDate": "2026-04-01", "year": "2026", "yearEnd": "2026", "status": "done"}, {"name": "Randy Yau - shed Monterey 30 San Pedro", "cost": 44800.0, "profit": 3770.0, "alexPay": -2380.0, "contractDate": "2025-09-04", "endDate": "2026-03-22", "year": "2025", "yearEnd": "2026", "status": "done"}, {"name": "Lester lee - Shed Monterey 1519 Belmont", "cost": 67760.0, "profit": 12103.41, "alexPay": -4676.0, "contractDate": "2025-09-30", "endDate": "2026-01-30", "year": "2025", "yearEnd": "2026", "status": "done"}, {"name": "Karthik Rishi - screen 1786 freemont", "cost": 4000.0, "profit": 2556.81, "alexPay": -400.0, "contractDate": "2025-09-22", "endDate": "2025-09-21", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "May Lee - Pergola Deck 767 Spruse SF", "cost": 20500.0, "profit": 7219.43, "alexPay": -2000.0, "contractDate": "2025-09-03", "endDate": "2025-09-23", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Randall W - fence, ventilation,screen", "cost": 2250.0, "profit": 1017.17, "alexPay": -225.0, "contractDate": "2025-06-28", "endDate": "2025-07-25", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Marma Basu - permit_electric 520 RWC ", "cost": 9800.0, "profit": 4045.0, "alexPay": -670.0, "contractDate": "2025-08-08", "endDate": "2025-09-12", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Marma Basu - shed 520 RWC", "cost": 33950.0, "profit": 11743.52, "alexPay": -1440.0, "contractDate": "2025-06-29", "endDate": "2025-10-08", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Sagar Khedkar - Shed 6284 San Jose", "cost": 29650.0, "profit": 8481.09, "alexPay": -1000.0, "contractDate": "2025-07-30", "endDate": "2025-09-13", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Sagar Khedkar - AC_painting 6284 San Jose", "cost": 1050.0, "profit": 88.7, "alexPay": -105.0, "contractDate": "2025-08-22", "endDate": "2025-08-25", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Aarthi Chandrasekaran- shed 1735 San Jose", "cost": 52250.0, "profit": 11579.61, "alexPay": -2025.0, "contractDate": "2025-07-11", "endDate": "2025-08-19", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Aarthi Chandrasekaran- add small deal 1735", "cost": 1200.0, "profit": 12.01, "alexPay": -120.0, "contractDate": "2025-09-11", "endDate": "2025-09-24", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "San Bruno painting", "cost": 1150.0, "profit": 504.52, "alexPay": -100.0, "contractDate": "2025-06-28", "endDate": "2025-06-28", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Keith silver - san carlos №2", "cost": 3400.0, "profit": 1350.03, "alexPay": -340.0, "contractDate": "2025-07-08", "endDate": "2025-07-09", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Keith silver - san carlos", "cost": 13400.0, "profit": 5050.3, "alexPay": -1340.0, "contractDate": "2025-07-03", "endDate": "2025-07-05", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Harries Edwards - demo patio", "cost": 3200.0, "profit": 541.95, "alexPay": -320.0, "contractDate": "2025-05-28", "endDate": "2025-06-04", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "KT Park - aluminium pergola 839 Sunnyvale", "cost": 21700.0, "profit": 9465.8, "alexPay": -2170.0, "contractDate": "2025-01-22", "endDate": "2025-09-04", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Vikram - Викрам Рави", "cost": 2300.0, "profit": 200.0, "alexPay": -230.0, "contractDate": "2025-03-24", "endDate": "2025-04-09", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Roman Yanovsky - Cooking Top 2", "cost": 810.0, "profit": 170.9, "alexPay": -81.0, "contractDate": "2025-04-16", "endDate": "2025-04-12", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Karthik Rishi - Electric Patio Heater", "cost": 3480.0, "profit": 939.48, "alexPay": -348.0, "contractDate": "2025-03-14", "endDate": "2025-03-14", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Randall W - sunroom 1212", "cost": 97200.0, "profit": 18047.65, "alexPay": -9275.0, "contractDate": "2025-03-17", "endDate": "2025-06-09", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Jahi Jones - Patio cover", "cost": 1800.0, "profit": 9.49, "alexPay": -180.0, "contractDate": "2025-05-03", "endDate": "2025-05-17", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Annie Hedges - wall leak repair", "cost": 7600.0, "profit": -488.21, "alexPay": -400.0, "contractDate": "2024-03-05", "endDate": "2025-03-20", "year": "2024", "yearEnd": "2025", "status": "done"}, {"name": "Joshua Chase - sunroom leak", "cost": 2050.0, "profit": 510.73, "alexPay": -205.0, "contractDate": "2025-02-13", "endDate": "2025-02-18", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Hayward установка screens", "cost": 1000.0, "profit": 490.0, "alexPay": -100.0, "contractDate": "2025-02-15", "endDate": "2025-02-15", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Daniela Grant 3171 san ramon", "cost": 7168.0, "profit": -3187.81, "alexPay": -575.0, "contractDate": "2025-01-23", "endDate": "2025-07-23", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Bo Li & Shuo Na - house remodelling  781 Sunnyvale", "cost": 137100.0, "profit": 38845.93, "alexPay": -12550.0, "contractDate": "2025-03-28", "endDate": "2025-08-26", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Bo Li & Shuo Na - tile replacement  781 Sunnyvale", "cost": 2200.0, "profit": 23.37, "alexPay": -220.0, "contractDate": "2025-08-10", "endDate": "2025-08-19", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Padma Mullapudi - pergola", "cost": 11700.0, "profit": -3295.07, "alexPay": -990.0, "contractDate": "2025-01-14", "endDate": "2025-02-15", "year": "2025", "yearEnd": "2025", "status": "done"}, {"name": "Karthik Rishi Krishnamurthi- pergola ", "cost": 21800.0, "profit": 6563.07, "alexPay": -2180.0, "contractDate": "2024-09-29", "endDate": "2025-03-10", "year": "2024", "yearEnd": "2025", "status": "done"}, {"name": "SSF demo", "cost": 3000.0, "profit": 2250.0, "alexPay": -300.0, "contractDate": "2024-12-31", "endDate": "2024-12-31", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Prasanna Duraijai - Side Wall ", "cost": 3000.0, "profit": 1957.21, "alexPay": -300.0, "contractDate": "2024-12-31", "endDate": "2024-12-31", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Julia - Shed", "cost": 23850.0, "profit": 10228.96, "alexPay": -1000.0, "contractDate": "2024-11-24", "endDate": "2024-12-06", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Brenda Willett - Deck", "cost": 13000.0, "profit": 5067.73, "alexPay": -1300.0, "contractDate": "2024-11-01", "endDate": "2024-12-01", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Daniel Bogart - Patio Cover ", "cost": 11000.0, "profit": 3043.72, "alexPay": -1100.0, "contractDate": "2024-10-29", "endDate": "2024-11-08", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Rikki - Patio Cover ", "cost": 7000.0, "profit": 3175.0, "alexPay": -700.0, "contractDate": "2024-11-04", "endDate": "2024-11-04", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Ross Stackhouse- Railing", "cost": 5200.0, "profit": 488.9, "alexPay": -530.0, "contractDate": "2024-10-26", "endDate": "2024-12-07", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Jonathan - Shade", "cost": 4500.0, "profit": 2714.05, "alexPay": -450.0, "contractDate": "2024-09-14", "endDate": "2024-09-14", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Anand Kamini - Deck ", "cost": 3000.0, "profit": 1244.62, "alexPay": -300.0, "contractDate": "2024-08-19", "endDate": "2024-08-20", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Samantha - Pergola repair", "cost": 3050.0, "profit": 1950.5, "alexPay": -265.0, "contractDate": "2024-08-14", "endDate": "2024-08-15", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Harriet Ukai - Deck", "cost": 4600.0, "profit": 1966.77, "alexPay": -460.0, "contractDate": "2024-07-31", "endDate": "2024-08-01", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Dennis Lim - Shed", "cost": 22300.0, "profit": 7618.37, "alexPay": -500.0, "contractDate": "2024-07-26", "endDate": "2024-08-18", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Jeffrey Baron - Deck", "cost": 61771.0, "profit": 2130.0, "alexPay": -5000.0, "contractDate": "2024-09-17", "endDate": "2024-10-23", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Hong Clark", "cost": 1400.0, "profit": 110.0, "alexPay": -140.0, "contractDate": "2024-07-24", "endDate": "2024-07-25", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Hillsborough козырек", "cost": 1650.0, "profit": 650.0, "alexPay": -150.0, "contractDate": "2024-07-20", "endDate": "2024-07-20", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Varsha - Deck 21278 Bank Mill", "cost": 45900.0, "profit": 13030.74, "alexPay": -4590.0, "contractDate": "2024-07-01", "endDate": "2024-08-14", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Randall W - House Repaint", "cost": 11000.0, "profit": 6106.69, "alexPay": -1100.0, "contractDate": "2024-06-18", "endDate": "2024-06-22", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Randall W - Deck", "cost": 25600.0, "profit": 12583.3, "alexPay": -2370.0, "contractDate": "2024-05-28", "endDate": "2024-06-04", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Saurabh Tiwiri - Pergola", "cost": 29900.0, "profit": 15254.03, "alexPay": -2000.0, "contractDate": "2024-05-13", "endDate": "2024-05-24", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "San Jose замена поста", "cost": 1050.0, "profit": 630.7, "alexPay": -110.0, "contractDate": "2024-04-29", "endDate": "2024-04-29", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Anthony - patio screen", "cost": 2800.0, "profit": 1321.0, "alexPay": -280.0, "contractDate": "2024-04-29", "endDate": "2024-04-29", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Julie Holm - Patio repair ", "cost": 3250.0, "profit": 2202.78, "alexPay": -325.0, "contractDate": "2024-04-23", "endDate": "2024-04-23", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Karen Hunt - polycarbonate roof", "cost": 9500.0, "profit": -1373.13, "alexPay": -700.0, "contractDate": "2024-04-16", "endDate": "2024-05-26", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Dr Tan - Patio cover", "cost": 58750.0, "profit": 23830.53, "alexPay": -4800.0, "contractDate": "2024-03-19", "endDate": "2024-04-25", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Gloria Perez - pergola", "cost": 4900.0, "profit": 1366.64, "alexPay": -300.0, "contractDate": "2024-03-31", "endDate": "2024-03-31", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "SF рейки маянг", "cost": 6000.0, "profit": 4042.23, "alexPay": -600.0, "contractDate": "2024-02-20", "endDate": "2024-02-20", "year": "2024", "yearEnd": "2024", "status": "done"}, {"name": "Mark/Amanda", "cost": 28050.0, "profit": 8822.0, "alexPay": -2000.0, "contractDate": "2023-11-20", "endDate": "2023-12-11", "year": "2023", "yearEnd": "2023", "status": "done"}, {"name": "Mayank Yadav 2 перголы Сан Франциско", "cost": 28500.0, "profit": 8998.0, "alexPay": -3460.0, "contractDate": "2023-09-14", "endDate": "2023-10-12", "year": "2023", "yearEnd": "2023", "status": "done"}, {"name": "KT Park  проект Навес голф ", "cost": 11000.0, "profit": 1782.0, "alexPay": -1110.0, "contractDate": "2023-08-19", "endDate": "2023-08-29", "year": "2023", "yearEnd": "2023", "status": "done"}, {"name": "Whitney Guido pergola", "cost": 28750.0, "profit": 6934.0, "alexPay": -1800.0, "contractDate": "2023-07-20", "endDate": "2023-10-13", "year": "2023", "yearEnd": "2023", "status": "done"}]
+;
+
+const employeeData = {
+  alex: { label: 'Алекс', role: 'Менеджер по продажам', projects: alexProjectsData },
+  igor: { label: 'Игорь', role: null, projects: [] },
+  timur: { label: 'Тимур', role: null, projects: [] },
+  pavel: { label: 'Павел', role: null, projects: [] },
+  mahmud: { label: 'Махмуд', role: null, projects: [] },
+  stas: { label: 'Стас', role: null, projects: [] },
+  sasha: { label: 'Саша', role: null, projects: [] },
+  other: { label: 'Прочие', role: null, projects: [] }
+};
+
+const marketingSpendByYear = { '2023': 583.6, '2024': 2467.94, '2025': 2166.82, '2026': 21835 };
+const marketingSpendIncomplete = {}; // все годы теперь посчитаны по полным данным
+
+
+const TYPE_LABELS = {"small deal": "Small deal", "design": "Design", "shed": "Shed", "pergola": "Pergola", "deck": "Deck", "patio": "Patio", "screen": "Screen", "fence": "Fence", "roof": "Roof", "permit": "Permit", "прочее": "Прочее"};
+
+function fmtPct(n) { return (n >= 0 ? '+' : '') + n.toFixed(1) + '%'; }
+
+let closedYearFilter = '2026';
+
+function renderClosedList() {
+  const closedCountEl = document.getElementById('closed-count');
+  if (closedCountEl) closedCountEl.textContent = closedProjects.length;
+
+  const allYears = [...new Set(closedProjects.map(p => (p.end || p.start || '').slice(0,4)).filter(Boolean))].filter(y => y !== '2023').sort((a,b) => b.localeCompare(a));
+  const yearChipsEl = document.getElementById('closed-year-chips');
+  if (yearChipsEl) {
+    yearChipsEl.innerHTML = `
+      ${allYears.map(y => `<div class="type-chip ${closedYearFilter===y?'active':''}" onclick="setClosedYear('${y}')">${y}</div>`).join('')}
+      <div class="type-chip ${!closedYearFilter?'active':''}" onclick="setClosedYear(null)">Все года</div>
+    `;
+  }
+
+  const searchEl = document.getElementById('closed-search');
+  const query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+
+  const filtered = closedProjects.filter(p => {
+    if (closedYearFilter && (p.end || p.start || '').slice(0,4) !== closedYearFilter) return false;
+    if (query && !p.name.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  const list = document.getElementById('closed-list');
+  const sorted = [...filtered].sort((a,b) => (b.end||'').localeCompare(a.end||''));
+  list.innerHTML = sorted.map((p) => {
+    return `
+    <div class="project-card" onclick="openClosedDetail(${closedProjects.indexOf(p)})">
+      <div class="pc-top"><div class="pc-name">${p.name}</div></div>
+      <div class="pc-money-row">
+        <span>Стоимость <span class="num">${fmt(p.cost)}</span></span>
+        <span>Тип <span class="num">${TYPE_LABELS[p.type] || p.type}</span></span>
+      </div>
+      <div class="pc-bottom">
+        <div><span class="pc-metric-label">Прибыль </span><span class="pc-metric-value num" style="color:${p.profit>=0?'var(--green)':'var(--red)'}">${fmt(p.profit)} (${fmtPct(p.profitPct)})</span></div>
+        <span class="status-chip ${p.profit>=0?'ok':'risk'}">${p.end || '—'}</span>
+      </div>
+    </div>`;
+  }).join('');
+  if (!sorted.length) {
+    list.innerHTML = `<div class="formula-note">Ничего не найдено по этому запросу/фильтру.</div>`;
+  }
+}
+
+function setClosedYear(y) { closedYearFilter = y; renderClosedList(); }
+
+function openClosedDetail(i) {
+  const p = closedProjects[i];
+  document.getElementById('d-name').textContent = p.name;
+  document.getElementById('d-client').textContent = `Тип: ${TYPE_LABELS[p.type] || p.rawType} · Закрыт ${p.end || '—'}`;
+  const staffTotal = (p.stas||0) + (p.sasha||0) + (p.alex||0) + (p.ap||0);
+  document.getElementById('detail-body').innerHTML = `
+    <div class="block-title">Итоги проекта</div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-box-label">Стоимость проекта</div><div class="stat-box-value num">${fmt(p.cost)}</div></div>
+      <div class="stat-box"><div class="stat-box-label">Оплачено клиентом</div><div class="stat-box-value num">${fmt(p.paid)}</div></div>
+      <div class="stat-box"><div class="stat-box-label">Прибыль</div><div class="stat-box-value num ${p.profit>=0?'pos':'neg'}">${fmt(p.profit)}</div></div>
+      <div class="stat-box"><div class="stat-box-label">% прибыли</div><div class="stat-box-value num ${p.profit>=0?'pos':'neg'}">${fmtPct(p.profitPct)}</div></div>
+    </div>
+
+    <div class="block-title">Расходы по проекту</div>
+    <div class="meta-list">
+      <div class="meta-row"><span class="meta-row-label">Стройматериалы</span><span class="meta-row-value num">${fmt(p.mat)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">Зарплата рабочих</span><span class="meta-row-value num">${fmt(p.labor)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">Прочие расходы</span><span class="meta-row-value num">${fmt(p.other)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">ЗП Стас</span><span class="meta-row-value num">${fmt(p.stas)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">ЗП Саша</span><span class="meta-row-value num">${fmt(p.sasha)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">ЗП Алекс</span><span class="meta-row-value num">${fmt(p.alex)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">Итого расходы</span><span class="meta-row-value num">${fmt(p.mat + p.labor + p.other + staffTotal)}</span></div>
+    </div>
+
+    <div class="block-title">Сроки</div>
+    <div class="meta-list">
+      <div class="meta-row"><span class="meta-row-label">Дата начала</span><span class="meta-row-value">${p.start || '—'}</span></div>
+      <div class="meta-row"><span class="meta-row-label">Дата окончания</span><span class="meta-row-value">${p.end || '—'}</span></div>
+      <div class="meta-row"><span class="meta-row-label">Долг клиента</span><span class="meta-row-value num">${fmt(p.debt)}</span></div>
+      <div class="meta-row"><span class="meta-row-label">Рабочих дней</span><span class="meta-row-value ${p.workdays?'num':'faint'}">${p.workdays ?? 'нет данных'}</span></div>
+    </div>
+  `;
+  document.getElementById('detail').classList.add('open');
+  document.getElementById('detail-backdrop').classList.add('open');
+  document.getElementById('detail').scrollTop = 0;
+  detailOpen = true;
+  showBackBar();
+}
+
+let currentScreen = 'active';
+let detailOpen = false;
+
+function showBackBar() { document.getElementById('bottom-back-bar').classList.add('show'); }
+function hideBackBar() { document.getElementById('bottom-back-bar').classList.remove('show'); }
+
+function goBack() {
+  if (detailOpen) { closeDetail(); return; }
+  if (currentScreen !== 'active') { closeScreen(currentScreen); return; }
+}
+
+function openScreen(name) {
+  // закрываем карточку проекта и все другие экраны, чтобы новый экран не оказался позади них
+  document.getElementById('detail').classList.remove('open');
+  document.getElementById('detail-backdrop').classList.remove('open');
+  detailOpen = false;
+  ['closed','compare','stats','employees'].forEach(n => {
+    if (n !== name) document.getElementById('screen-' + n).classList.remove('open');
+  });
+  if (name === 'closed') renderClosedList();
+  if (name === 'compare') renderCompare(null);
+  if (name === 'stats') renderStatsHome();
+  if (name === 'marketing') renderMarketing();
+  if (name === 'employees') renderEmployees();
+  document.getElementById('screen-' + name).classList.add('open');
+  document.getElementById('active-view').classList.add('hidden-view');
+  currentScreen = name;
+  showBackBar();
+  setActiveNav(name);
+}
+function closeScreen(name) {
+  document.getElementById('screen-' + name).classList.remove('open');
+  document.getElementById('active-view').classList.remove('hidden-view');
+  currentScreen = 'active';
+  if (!detailOpen) hideBackBar();
+  setActiveNav('active');
+}
+function goToActive() {
+  document.getElementById('screen-closed').classList.remove('open');
+  document.getElementById('screen-compare').classList.remove('open');
+  document.getElementById('screen-stats').classList.remove('open');
+  document.getElementById('screen-employees').classList.remove('open');
+  document.getElementById('detail').classList.remove('open');
+  document.getElementById('detail-backdrop').classList.remove('open');
+  document.getElementById('active-view').classList.remove('hidden-view');
+  currentScreen = 'active';
+  detailOpen = false;
+  hideBackBar();
+  setActiveNav('active');
+}
+function setActiveNav(name) {
+  ['active','closed','stats','employees'].forEach(n => {
+    document.getElementById('bn-' + n).classList.toggle('active', n === name);
+    const sn = document.getElementById('sn-' + n);
+    if (sn) sn.classList.toggle('active', n === name);
+  });
+}
+setActiveNav('active');
+
+function typeStats(type, year) {
+  const items = closedProjects.filter(p => {
+    if (p.type !== type) return false;
+    if (year && (p.end || p.start || '').slice(0,4) !== year) return false;
+    return true;
+  });
+  const n = items.length;
+  const sum = (f) => items.reduce((a,p) => a + f(p), 0);
+  return {
+    count: n,
+    avgCost: n ? sum(p=>p.cost)/n : 0,
+    avgProfit: n ? sum(p=>p.profit)/n : 0,
+    avgProfitPct: n ? sum(p=>p.profitPct)/n : 0,
+    avgDays: (() => { const d = items.filter(p=>p.workdays); return d.length ? d.reduce((a,p)=>a+p.workdays,0)/d.length : null; })(),
+    totalProfit: sum(p=>p.profit),
+    items
+  };
+}
+
+let statsYear = '2026';
+let statsType = null;
+
+let mktYear = null;
+let mktStatus = 'all'; // all | active | closed
+
+let currentEmployee = null;
+let empYear = null;
+
+function renderEmployees() {
+  currentEmployee = null;
+  const order = ['igor','timur','pavel','mahmud','alex','stas','sasha','other'];
+  document.getElementById('employees-body').innerHTML = `
+    <div class="formula-note" style="margin-bottom:14px;">По Алексу — статистика заключённых контрактов из вкладки «Проекты» (колонка Alex). Остальных сотрудников добавим следующим шагом.</div>
+    <div class="employee-grid">
+      ${order.map(id => {
+        const e = employeeData[id];
+        const hasData = e.projects.length > 0;
+        return `<div class="employee-btn ${hasData?'':'empty'}" onclick="${hasData ? `openEmployee('${id}')` : ''}">
+          <div class="employee-btn-name">${e.label}</div>
+          <div class="employee-btn-role">${e.role || (hasData ? '' : 'скоро добавим')}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function openEmployee(id) {
+  currentEmployee = id;
+  empYear = null;
+  renderEmployeeDetail();
+}
+
+function backToEmployeeGrid() {
+  currentEmployee = null;
+  renderEmployees();
+}
+
+function setEmpYear(y) {
+  empYear = y;
+  renderEmployeeDetail();
+}
+
+function renderEmployeeDetail() {
+  const e = employeeData[currentEmployee];
+  const projects2426 = e.projects.filter(p => p.year && p.year !== '2023');
+  const allYears = ['2026','2025','2024'].filter(y => projects2426.some(p => p.year === y));
+
+  const backLink = `<div class="nav-btn" style="margin-bottom:16px;" onclick="backToEmployeeGrid()"><span>‹ Все сотрудники</span><span></span></div>`;
+  const title = `<div class="detail-name" style="margin-bottom:2px;">${e.label}</div><div class="detail-client" style="margin-bottom:16px;">${e.role || ''}</div>`;
+
+  const yearChips = `<div class="type-chip-row">
+    <div class="type-chip ${!empYear?'active':''}" onclick="setEmpYear(null)">Общая картина</div>
+    ${allYears.map(y => `<div class="type-chip ${empYear===y?'active':''}" onclick="setEmpYear('${y}')">${y}</div>`).join('')}
+  </div>`;
+
+  const fmtSigned = (n) => (n >= 0 ? '+' : '') + fmt(n);
+
+  if (empYear) {
+    // Детально по одному году
+    const filtered = projects2426.filter(p => p.year === empYear);
+    const count = filtered.length;
+    const totalCost = filtered.reduce((a,p) => a + p.cost, 0);
+    const endYearItems = e.projects.filter(p => p.yearEnd === empYear);
+    const commissionThisYear = endYearItems.reduce((a,p) => a + Math.abs(p.alexPay), 0);
+    const revenueEndYear = endYearItems.reduce((a,p) => a + p.cost, 0);
+    const commissionPct = revenueEndYear ? (commissionThisYear / revenueEndYear * 100) : null;
+
+    const statsBlock = `
+      <div class="chart-block">
+        <div class="block-title" style="margin-top:0">Контракты, ${empYear} год</div>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-box-label">Заключено контрактов</div><div class="stat-box-value num">${count}</div></div>
+          <div class="stat-box"><div class="stat-box-label">Выручка</div><div class="stat-box-value num">${fmt(totalCost)}</div></div>
+          <div class="stat-box"><div class="stat-box-label">Средний чек</div><div class="stat-box-value num">${count ? fmt(totalCost/count) : '—'}</div></div>
+          <div class="stat-box"><div class="stat-box-label">Комиссия выплачена</div><div class="stat-box-value num">${fmt(commissionThisYear)}</div></div>
+          <div class="stat-box"><div class="stat-box-label">% комиссии к выручке</div><div class="stat-box-value num">${commissionPct === null ? '—' : commissionPct.toFixed(1) + '%'}</div></div>
+        </div>
+        <div class="formula-note" style="margin-top:10px;">Комиссия и % считаются по проектам, завершённым в ${empYear} году (по дате окончания), поэтому набор проектов может отличаться от «Выручки» — та считается по дате контракта.</div>
+      </div>
+    `;
+
+    const listBlock = `
+      <div class="block-title">Контракты (${filtered.length})</div>
+      <div class="list">
+        ${filtered.sort((a,b) => (b.contractDate||'').localeCompare(a.contractDate||'')).map(p => `
+          <div class="project-card" style="cursor:default;">
+            <div class="pc-top"><div class="pc-name">${p.name}</div></div>
+            <div class="pc-money-row">
+              <span>Дата <span class="num">${p.contractDate || '—'}</span></span>
+              <span class="status-chip ${p.status==='done'?'ok':'warn'}">${p.status==='done'?'закрыт':'активен'}</span>
+            </div>
+            <div class="pc-bottom">
+              <div><span class="pc-metric-label">Стоимость </span><span class="pc-metric-value num">${fmt(p.cost)}</span></div>
+              <div><span class="pc-metric-label">Комиссия </span><span class="pc-metric-value num">${fmt(Math.abs(p.alexPay))}</span></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    document.getElementById('employees-body').innerHTML = backLink + title + yearChips + statsBlock + listBlock;
+    return;
+  }
+
+  // Общая картина: годы по горизонтали (2026 → 2024), показатели по вертикали, прирост к прошлому году
+  const byYear = {};
+  allYears.forEach(y => {
+    const items = projects2426.filter(p => p.year === y);
+    const commissionItems = e.projects.filter(p => p.yearEnd === y);
+    const commissionSum = commissionItems.reduce((a,p)=>a+Math.abs(p.alexPay),0);
+    const revenueEndYear = commissionItems.reduce((a,p)=>a+p.cost,0);
+    byYear[y] = {
+      count: items.length,
+      cost: items.reduce((a,p)=>a+p.cost,0),
+      commission: commissionSum,
+      commissionPct: revenueEndYear ? (commissionSum / revenueEndYear * 100) : 0
+    };
+  });
+
+  const deltaChip = (curr, prev) => {
+    if (prev === undefined || prev === null || prev === 0) return `<div class="year-table-delta">&nbsp;</div>`;
+    const pct = ((curr - prev) / Math.abs(prev)) * 100;
+    const up = pct >= 0;
+    return `<div class="year-table-delta" style="color:${up?'var(--green)':'var(--red)'};">${up?'▲':'▼'}${up?'+':''}${pct.toFixed(0)}%</div>`;
+  };
+
+  const metricRow = (label, key, fmtFn) => {
+    return `
+      <div class="year-table-row">
+        <div class="year-table-label">${label}</div>
+        ${allYears.map((y, idx) => {
+          const prevY = allYears[idx + 1]; // следующий в массиве = более ранний год
+          const curr = byYear[y][key];
+          const prev = prevY ? byYear[prevY][key] : undefined;
+          return `<div class="year-table-cell">
+            <div class="year-table-val">${fmtFn(curr)}</div>
+            ${deltaChip(curr, prev)}
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+  };
+
+  const overviewBlock = `
+    <div class="chart-block">
+      <div class="block-title" style="margin-top:0">Общая картина по годам</div>
+      <div class="year-table">
+        <div class="year-table-row year-table-header">
+          <div class="year-table-label"></div>
+          ${allYears.map(y => `<div class="year-table-cell year-table-year">${y}</div>`).join('')}
+        </div>
+        ${metricRow('Контрактов', 'count', v => v)}
+        ${metricRow('Выручка', 'cost', v => fmt(v))}
+        ${metricRow('Комиссия', 'commission', v => fmt(v))}
+        ${metricRow('% к выручке', 'commissionPct', v => v.toFixed(1) + '%')}
+      </div>
+      <div class="formula-note" style="margin-top:12px; margin-bottom:0;">Контракты и выручка — по дате заключения контракта. Комиссия — по дате завершения проекта (год может отличаться от года контракта).</div>
+    </div>
+  `;
+
+  document.getElementById('employees-body').innerHTML = backLink + title + yearChips + overviewBlock;
+}
+
+function renderMarketingFacebook() {
+  const backLink = `<div class="nav-btn" style="margin-bottom:16px;" onclick="renderMarketing()"><span>‹ Все категории рекламы</span><span></span></div>`;
+  if (!mktYear) mktYear = '2026';
+  renderChannelMarketing('fb', 'Маркетинг FB', mktYear, backLink, 'setMktYear', adSpendByYear[mktYear].facebook);
+}
+
+function setMktYear(y) { mktYear = y; renderMarketingFacebook(); }
+
+let yelpYear = '2026';
+function renderMarketingYelp() {
+  const backLink = `<div class="nav-btn" style="margin-bottom:16px;" onclick="renderMarketing()"><span>‹ Все категории рекламы</span><span></span></div>`;
+  renderChannelMarketing('yelp', 'Маркетинг YELP', yelpYear, backLink, 'setYelpYear', adSpendByYear[yelpYear].yelp);
+}
+function setYelpYear(y) { yelpYear = y; renderMarketingYelp(); }
+
+function renderChannelMarketing(channelKey, title, year, backLink, setYearFnName, spend) {
+  const data = marketingByClient[channelKey];
+  const closedFiltered = data.closed.filter(c => c.year === year);
+  const activeFilteredYear = data.active.filter(c => c.year === year);
+  const activeAll = data.active; // без фильтра по году — вся текущая воронка (для строки ниже)
+
+  const totalCost = closedFiltered.reduce((a,c) => a + c.cost, 0);
+  const totalProfit = closedFiltered.reduce((a,c) => a + c.profit, 0);
+  const count = closedFiltered.length; // уникальные клиенты, закрытые в этом году
+
+  // Для CAC считаем ВСЕХ уникальных клиентов, привлечённых в этом году — и закрытых, и ещё активных
+  const allClientsThisYear = new Set([...closedFiltered.map(c=>c.client), ...activeFilteredYear.map(c=>c.client)]);
+  const totalAcquired = allClientsThisYear.size;
+
+  const romi = spend ? ((totalProfit - spend) / spend * 100) : null;
+  const cac = totalAcquired ? (spend / totalAcquired) : null;
+  const mktToRevenue = totalCost ? (spend / totalCost * 100) : null;
+
+  const activeCount = activeAll.length;
+  const activeCost = activeAll.reduce((a,c) => a + c.cost, 0);
+
+  const yearChips = `<div class="type-chip-row">
+    <div class="type-chip ${year==='2026'?'active':''}" onclick="${setYearFnName}('2026')">2026</div>
+    <div class="type-chip ${year==='2025'?'active':''}" onclick="${setYearFnName}('2025')">2025</div>
+  </div>`;
+
+  const fmtSigned = (n) => (n >= 0 ? '+' : '') + fmt(n);
+  const fmtPctSigned = (n) => (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+  const romiColor = romi === null ? 'var(--text)' : (romi >= 0 ? 'var(--green)' : 'var(--red)');
+
+  const kpiBlock = `
+    <div class="chart-block">
+      <div class="block-title" style="margin-top:0">Расходы на ${channelKey === 'fb' ? 'Facebook/Instagram/сайт' : 'YELP'}, ${year}</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-box-label">Потрачено на рекламу</div><div class="stat-box-value num">${fmt(spend)}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Уникальных клиентов (закрыто)</div><div class="stat-box-value num">${count}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Выручка по ним</div><div class="stat-box-value num">${fmt(totalCost)}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Прибыль по ним</div><div class="stat-box-value num ${totalProfit>=0?'pos':'neg'}">${fmtSigned(totalProfit)}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Всего привлечено в ${year} (закрыто + активно)</div><div class="stat-box-value num">${totalAcquired}</div></div>
+      </div>
+    </div>
+    <div class="chart-block">
+      <div class="block-title" style="margin-top:0">Ключевые показатели</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-box-label">ROMI (окупаемость)</div><div class="stat-box-value num" style="color:${romiColor}">${romi === null ? '—' : fmtPctSigned(romi)}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Стоимость 1 привлечённого (CAC)</div><div class="stat-box-value num">${cac === null ? '—' : fmt(cac)}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Маркетинг / выручка</div><div class="stat-box-value num">${mktToRevenue === null ? '—' : mktToRevenue.toFixed(1) + '%'}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Средняя прибыль / клиент</div><div class="stat-box-value num">${count ? fmt(totalProfit/count) : '—'}</div></div>
+      </div>
+    </div>
+    <div class="meta-list" style="margin-top:2px;">
+      <div class="meta-row"><span class="meta-row-label">Активных клиентов по ${channelKey === 'fb' ? 'FB' : 'YELP'}</span><span class="meta-row-value num">${activeCount} на сумму ${fmt(activeCost)}</span></div>
+    </div>
+  `;
+
+  const listBlock = `
+    <div class="block-title">Завершённые клиенты (${closedFiltered.length})</div>
+    <div class="list">
+      ${closedFiltered.map(c => `
+        <div class="project-card" style="cursor:default;">
+          <div class="pc-top"><div class="pc-name">${c.client}${c.names.length>1 ? ` <span style="font-weight:400;color:var(--text-faint);">(${c.names.length} проекта объединено)</span>` : ''}</div></div>
+          <div class="pc-bottom">
+            <div><span class="pc-metric-label">Выручка </span><span class="pc-metric-value num">${fmt(c.cost)}</span></div>
+            <div><span class="pc-metric-label">Прибыль </span><span class="pc-metric-value num" style="color:${c.profit>=0?'var(--green)':'var(--red)'}">${fmtSigned(c.profit)}</span></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const header = `<div class="detail-name" style="margin-bottom:2px;">${title}</div>
+    <div class="formula-note" style="margin:8px 0 14px;">Год — по дате контракта. Один клиент с несколькими проектами (например, дизайн + шед) считается как один клиент, выручка и прибыль по нему суммируются. Выручка/прибыль — только по <b>завершённым</b> проектам, но CAC (стоимость привлечения) считается по всем привлечённым клиентам этого года — и завершённым, и ещё активным, ведь деньги на рекламу уже потрачены на них всех.${channelKey==='yelp' ? ' Повторные обращения (Yelp «вернулся») не учитываются.' : ''}</div>`;
+
+  document.getElementById('marketing-body').innerHTML = backLink + header + yearChips + kpiBlock + listBlock;
+}
+
+const adSpendByYear = {
+  '2025': { yelp: 14077.01, facebook: 2166.82, other: 5816.59 },
+  '2026': { yelp: 1446, facebook: 21834.85, other: 2921.71 }
+};
+let adYear = null;
+
+function renderMarketing() {
+  if (!adYear) adYear = '2026';
+  const scopeYears = [adYear];
+
+  const sums = { yelp: 0, facebook: 0, other: 0 };
+  scopeYears.forEach(y => {
+    sums.yelp += adSpendByYear[y].yelp;
+    sums.facebook += adSpendByYear[y].facebook;
+    sums.other += adSpendByYear[y].other;
+  });
+  const total = sums.yelp + sums.facebook + sums.other;
+
+  const yearChips = `<div class="type-chip-row">
+    <div class="type-chip ${adYear==='2026'?'active':''}" onclick="setAdYear('2026')">2026</div>
+    <div class="type-chip ${adYear==='2025'?'active':''}" onclick="setAdYear('2025')">2025</div>
+  </div>`;
+
+  const catColor = { yelp: '#E2695E', facebook: 'var(--amber)', other: 'var(--text-dim)' };
+  const catLabel = { yelp: 'YELP', facebook: 'Facebook/Instagram', other: 'Прочая реклама + комиссии' };
+  const maxVal = Math.max(sums.yelp, sums.facebook, sums.other, 1);
+
+  const overviewChart = `
+    <div class="chart-block">
+      <div class="block-title" style="margin-top:0">Расходы по статьям рекламы, ${adYear}</div>
+      ${['yelp','facebook','other'].map(k => `
+        <div class="chart-row">
+          <div class="chart-label">${catLabel[k]}</div>
+          <div class="chart-track"><div class="chart-fill" style="width:${sums[k]/maxVal*100}%; background:${catColor[k]}"></div></div>
+          <div class="chart-val num">${fmt(sums[k])}</div>
+        </div>
+      `).join('')}
+      <div class="pc-money-row" style="border:none; padding-top:8px; margin-bottom:0;">
+        <span>Итого <span class="num">${fmt(total)}</span></span>
+      </div>
+    </div>
+  `;
+
+  const categoryButtons = `
+    <div class="block-title">Разбор по каналам</div>
+    <div class="employee-grid" style="grid-template-columns: 1fr;">
+      <div class="employee-btn" style="text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="openMarketingCategory('facebook')">
+        <div><div class="employee-btn-name">Facebook</div><div class="employee-btn-role">${fmt(sums.facebook)}, ${adYear}</div></div><span class="chev" style="color:var(--text-faint)">›</span>
+      </div>
+      <div class="employee-btn" style="text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="openMarketingCategory('yelp')">
+        <div><div class="employee-btn-name">YELP</div><div class="employee-btn-role">${fmt(sums.yelp)}, ${adYear}</div></div><span class="chev" style="color:var(--text-faint)">›</span>
+      </div>
+      <div class="employee-btn" style="text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="openMarketingCategory('other')">
+        <div><div class="employee-btn-name">Прочая реклама</div><div class="employee-btn-role">${fmt(sums.other)}, ${adYear} · вкл. комиссии</div></div><span class="chev" style="color:var(--text-faint)">›</span>
+      </div>
+    </div>
+  `;
+
+  const header = `<div class="formula-note" style="margin:0 0 14px;">Данные по статьям рекламы (вкладка «ДДС 2025», строки YELP / FACEBK+Instagram / Прочая реклама+commission fees).</div>`;
+
+  document.getElementById('marketing-body').innerHTML = header + yearChips + overviewChart + categoryButtons;
+}
+
+function setAdYear(y) { adYear = y; renderMarketing(); }
+
+function openMarketingCategory(cat) {
+  if (cat === 'facebook') { renderMarketingFacebook(); return; }
+  if (cat === 'yelp') { renderMarketingYelp(); return; }
+  const label = 'Маркетинг Прочая реклама';
+  const backLink = `<div class="nav-btn" style="margin-bottom:16px;" onclick="renderMarketing()"><span>‹ Все категории рекламы</span><span></span></div>`;
+  const rows = ['2026','2025'].map(y => `
+    <div class="meta-row"><span class="meta-row-label">${y}</span><span class="meta-row-value num">${fmt(adSpendByYear[y][cat])}</span></div>
+  `).join('');
+  document.getElementById('marketing-body').innerHTML = backLink + `
+    <div class="detail-name" style="margin-bottom:16px;">${label}</div>
+    <div class="meta-list">${rows}</div>
+    <div class="formula-note" style="margin-top:16px;">Детальный разбор по проектам для этого канала — доработаем следующим шагом.</div>
+  `;
+}
+
+function renderExpenseCompare() {
+  const backLink = `<div class="nav-btn" style="margin-bottom:16px;" onclick="renderStatsHome()"><span>‹ Статистика</span><span></span></div>`;
+  const baseItems = closedProjects.filter(p => p.type !== 'design' && p.type !== 'permit');
+
+  const allYears = [...new Set(baseItems.map(p => (p.end || p.start || '').slice(0,4)).filter(Boolean))].filter(y => y !== '2023').sort((a,b) => b.localeCompare(a));
+  const allTypes = [...new Set(baseItems.map(p => p.type))];
+
+  const filtered = baseItems.filter(p => {
+    const y = (p.end || p.start || '').slice(0,4);
+    if (statsYear && y !== statsYear) return false;
+    if (statsType && p.type !== statsType) return false;
+    return true;
+  });
+
+  const catColors = { mat: 'var(--amber)', labor: '#C77D3A', other: 'var(--text-dim)', stas: '#8A6FB0', sasha: '#5C8FB0', alex: '#B05C7E', profit: 'var(--green)' };
+  const catLabels = { mat: 'Стройматериалы', labor: 'ЗП рабочих', other: 'Прочие расходы', stas: 'ЗП Стас', sasha: 'ЗП Саша', alex: 'ЗП Алекс', profit: 'Прибыль' };
+
+  function expenseBlock(title, list) {
+    const n = list.length;
+    const sum = (f) => list.reduce((a,p) => a + f(p), 0);
+    const totalCost = sum(p=>p.cost);
+    const totalRevenue = sum(p=>p.paid);
+    const cats = {
+      mat: sum(p=>p.mat), labor: sum(p=>p.labor), other: sum(p=>p.other),
+      stas: sum(p=>p.stas), sasha: sum(p=>p.sasha), alex: sum(p=>p.alex),
+      profit: sum(p=>p.profit)
+    };
+    const rows = Object.keys(cats).map(k => {
+      const pct = totalCost ? (cats[k] / totalCost * 100) : 0;
+      return `<div class="chart-row">
+        <div class="chart-label">${catLabels[k]}</div>
+        <div class="chart-track"><div class="chart-fill" style="width:${Math.min(100, Math.abs(pct))}%; background:${catColors[k]}"></div></div>
+        <div class="chart-val num">${pct.toFixed(1)}%</div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="chart-block">
+        <div class="block-title" style="margin-top:0">${title} — ${n} проектов</div>
+        <div class="pc-money-row" style="border:none; padding-bottom:12px;">
+          <span>Стоимость <span class="num">${fmt(totalCost)}</span></span>
+          <span>Оплачено <span class="num">${fmt(totalRevenue)}</span></span>
+        </div>
+        ${rows}
+      </div>
+    `;
+  }
+
+  const yearChips = `<div class="type-chip-row">
+    ${allYears.map(y => `<div class="type-chip ${statsYear===y?'active':''}" onclick="setStatsFilter('year', '${y}')">${y}</div>`).join('')}
+    <div class="type-chip ${!statsYear?'active':''}" onclick="setStatsFilter('year', null)">Все года</div>
+  </div>`;
+  const typeChips = `<div class="type-chip-row">
+    <div class="type-chip ${!statsType?'active':''}" onclick="setStatsFilter('type', null)">Все типы</div>
+    ${allTypes.map(t => `<div class="type-chip ${statsType===t?'active':''}" onclick="setStatsFilter('type', '${t}')">${TYPE_LABELS[t]||t} (${baseItems.filter(p=>p.type===t).length})</div>`).join('')}
+  </div>`;
+
+  const header = `<div class="formula-note" style="margin:0 0 14px;">Без учёта проектов типа design и permit (${baseItems.length} из ${closedProjects.length} закрытых проектов). Выберите год и/или тип, чтобы посмотреть детальную структуру расходов и прибыли именно по ним.</div>`;
+
+  const filterTitle = (statsYear || statsType) ?
+    `${statsType ? (TYPE_LABELS[statsType]||statsType) : 'Все типы'}${statsYear ? ', ' + statsYear + ' год' : ', все года'}` :
+    'Все закрытые проекты (кроме design/permit)';
+
+  const summaryBlock = filtered.length ? expenseBlock(filterTitle, filtered) : `<div class="formula-note">Нет закрытых проектов по этому фильтру.</div>`;
+
+  // разбивка по годам внутри текущего фильтра типа (если год не зафиксирован)
+  let byYearBlocks = '';
+  if (!statsYear && filtered.length) {
+    const byYear = {};
+    filtered.forEach(p => {
+      const y = (p.end || p.start || '').slice(0,4) || 'Без даты';
+      if (!byYear[y]) byYear[y] = [];
+      byYear[y].push(p);
+    });
+    const years = Object.keys(byYear).sort((a,b) => b.localeCompare(a));
+    if (years.length > 1) {
+      byYearBlocks = `<div class="block-title">По годам</div>` + years.map(y => expenseBlock(y + ' год', byYear[y])).join('');
+    }
+  }
+
+  const compareLink = `<div class="detail-name" style="margin-bottom:16px;">Сравнение расходов</div>`;
+
+  document.getElementById('stats-body').innerHTML = backLink + compareLink + header + yearChips + typeChips + summaryBlock + byYearBlocks + renderProjectComparePicker();
+  attachComparePickerHandlers(renderExpenseCompare);
+}
+
+function setStatsFilter(kind, value) {
+  if (kind === 'year') statsYear = value;
+  if (kind === 'type') statsType = value;
+  renderExpenseCompare();
+}
+
+function renderStatsHome() {
+  document.getElementById('stats-body').innerHTML = `
+    <div class="employee-grid" style="grid-template-columns: 1fr;">
+      <div class="employee-btn" style="text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="openScreen('compare')">
+        <div><div class="employee-btn-name">📊 Сравнение по типу</div><div class="employee-btn-role">Прибыль, сводка и оценка проектов по типу работ</div></div><span class="chev" style="color:var(--text-faint)">›</span>
+      </div>
+      <div class="employee-btn" style="text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="renderExpenseCompare()">
+        <div><div class="employee-btn-name">💰 Сравнение расходов</div><div class="employee-btn-role">Структура расходов по годам и типам</div></div><span class="chev" style="color:var(--text-faint)">›</span>
+      </div>
+    </div>
+  `;
+}
+
+let compareType = null;
+let compareYear = '2026';
+let compareSelection = [];
+
+function rankProjectsByEfficiency(items) {
+  // Эффективность = прибыль / рабочие дни ($/день). Оценка по фиксированным порогам:
+  // Худший — меньше $300/день, Лучший — от $600/день, Средний — между ними.
+  // Для проектов без данных по дням оценку не ставим (не с чем сравнивать).
+  const WORST_MAX = 300;
+  const BEST_MIN = 600;
+  const scored = items.map(p => {
+    const hasDays = p.workdays && p.workdays > 0;
+    const score = hasDays ? p.profit / p.workdays : null;
+    const effLabel = hasDays ? `${fmt(Math.round(score))}/день` : 'нет данных';
+    let tier, tierLabel;
+    if (!hasDays) { tier = 'unrated'; tierLabel = 'Без оценки'; }
+    else if (score < WORST_MAX) { tier = 'worst'; tierLabel = 'Худший'; }
+    else if (score >= BEST_MIN) { tier = 'best'; tierLabel = 'Лучший'; }
+    else { tier = 'mid'; tierLabel = 'Средний'; }
+    return { ...p, score: hasDays ? score : -Infinity, effLabel, hasDays, tier, tierLabel };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map((p, i) => ({ ...p, rank: i + 1 }));
+}
+
+function renderCompare(selectedType) {
+  if (selectedType !== undefined) compareType = selectedType;
+  const selType = compareType;
+  const selYear = compareYear;
+
+  const allYears = [...new Set(closedProjects.map(p => (p.end || p.start || '').slice(0,4)).filter(Boolean))].filter(y => y !== '2023').sort((a,b) => b.localeCompare(a));
+  const typesInYear = (y) => [...new Set(closedProjects.filter(p => !y || (p.end||p.start||'').slice(0,4)===y).map(p=>p.type))];
+  const types = typesInYear(selYear);
+
+  const allStats = types.map(t => ({ type: t, ...typeStats(t, selYear) })).filter(s=>s.count>0).sort((a,b) => b.avgProfitPct - a.avgProfitPct);
+  const maxPct = Math.max(...allStats.map(s => Math.abs(s.avgProfitPct)), 1);
+
+  const yearChipsHtml = `<div class="type-chip-row">
+    ${allYears.map(y => `<div class="type-chip ${selYear===y?'active':''}" onclick="setCompareYear('${y}')">${y}</div>`).join('')}
+    <div class="type-chip ${!selYear?'active':''}" onclick="setCompareYear(null)">Все года</div>
+  </div>`;
+
+  const chipsHtml = `<div class="type-chip-row">
+    ${types.map(t => `<div class="type-chip ${t===selType?'active':''}" onclick="renderCompare('${t}')">${TYPE_LABELS[t]||t} (${typeStats(t, selYear).count})</div>`).join('')}
+    ${selType ? `<div class="type-chip" onclick="renderCompare(null)">✕ Сбросить</div>` : ''}
+  </div>`;
+
+  const overviewChart = `<div class="chart-block">
+    <div class="block-title" style="margin-top:0">Средняя % прибыли по типам${selYear ? ' · ' + selYear + ' год' : ''}</div>
+    ${allStats.map(s => `
+      <div class="chart-row">
+        <div class="chart-label">${TYPE_LABELS[s.type]||s.type}</div>
+        <div class="chart-track"><div class="chart-fill" style="width:${Math.min(100, Math.abs(s.avgProfitPct)/maxPct*100)}%; background:${s.avgProfitPct>=0?'var(--green)':'var(--red)'}"></div></div>
+        <div class="chart-val num">${s.avgProfitPct.toFixed(1)}%</div>
+      </div>`).join('')}
+  </div>`;
+
+  let detailHtml = '';
+  if (selType) {
+    const s = typeStats(selType, selYear);
+    detailHtml = `
+      <div class="block-title">${TYPE_LABELS[selType]||selType} — сводка (${s.count} проектов${selYear ? ', ' + selYear : ''})</div>
+      <div class="compare-stats">
+        <div class="stat-box"><div class="stat-box-label">Средняя стоимость</div><div class="stat-box-value num">${fmt(s.avgCost)}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Средняя прибыль</div><div class="stat-box-value num ${s.avgProfit>=0?'pos':'neg'}">${fmt(s.avgProfit)}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Средний % прибыли</div><div class="stat-box-value num ${s.avgProfitPct>=0?'pos':'neg'}">${fmtPct(s.avgProfitPct)}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Средние рабочие дни</div><div class="stat-box-value num">${s.avgDays ? s.avgDays.toFixed(1) : '—'}</div></div>
+      </div>
+      <div class="block-title">Оценка проектов этого типа</div>
+      <div class="formula-note" style="margin-bottom:14px;">Оценка по эффективности — прибыль на 1 рабочий день. Худший — меньше $300/день, Лучший — от $600/день, Средний — между ними. Для проектов без данных по рабочим дням оценка не ставится.</div>
+      ${rankProjectsByEfficiency(s.items).map(p => `
+        <div class="chart-block" style="margin-bottom:8px; padding:12px 14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+              <span style="font-family:'SF Mono','Roboto Mono',monospace; font-weight:700; color:var(--text-faint); font-size:12px;">#${p.rank}</span>
+              <span style="font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.name}</span>
+            </div>
+            <span class="status-chip ${p.tier==='best'?'ok':p.tier==='worst'?'risk':p.tier==='unrated'?'':'warn'}" ${p.tier==='unrated'?'style="background:var(--border-soft);color:var(--text-faint);"':''}>${p.tierLabel}</span>
+          </div>
+          <div class="pc-bottom">
+            <div><span class="pc-metric-label">Прибыль </span><span class="pc-metric-value num" style="color:${p.profit>=0?'var(--green)':'var(--red)'}">${fmt(p.profit)}</span></div>
+            <div><span class="pc-metric-label">Дней </span><span class="pc-metric-value num">${p.workdays ?? '—'}</span></div>
+            <div><span class="pc-metric-label">Эффект. </span><span class="pc-metric-value num">${p.effLabel}</span></div>
+          </div>
+        </div>
+      `).join('')}
+      </div>
+    `;
+  }
+
+  const backToStatsLink = `<div class="nav-btn" style="margin-bottom:16px;" onclick="closeScreen('compare'); openScreen('stats');"><span>‹ Статистика</span><span></span></div>`;
+  document.getElementById('compare-body').innerHTML = backToStatsLink + yearChipsHtml + chipsHtml + overviewChart + detailHtml + renderProjectComparePicker();
+  attachComparePickerHandlers(() => renderCompare(compareType === null ? null : compareType));
+}
+
+function setCompareYear(y) {
+  compareYear = y;
+  compareType = null; // сбрасываем тип, т.к. список типов зависит от года
+  renderCompare(null);
+}
+
+function renderProjectComparePicker() {
+  const pickList = [...closedProjects].sort((a,b) => (b.end||'').localeCompare(a.end||''));
+  const pickChips = pickList.map((p) => {
+    const active = compareSelection.includes(p.name);
+    return `<div class="type-chip compare-pick-chip ${active?'active':''}" data-name="${p.name.replace(/"/g,'&quot;')}">${p.name}</div>`;
+  }).join('');
+
+  let resultHtml = '';
+  if (compareSelection.length >= 2) {
+    const selProjects = compareSelection.map(n => closedProjects.find(p => p.name === n)).filter(Boolean);
+    resultHtml = projectCompareTable(selProjects);
+  } else {
+    resultHtml = `<div class="formula-note">Выберите 2–3 проекта из списка выше, чтобы сравнить их по расходам.</div>`;
+  }
+
+  return `
+    <div class="block-title">Сравнить проекты между собой</div>
+    <div class="formula-note" style="margin-bottom:12px;">Выберите до 3 закрытых проектов (независимо от типа/года). Начните вводить название, чтобы найти нужный.</div>
+    <input type="text" class="search-input" id="compare-pick-search" placeholder="Поиск проекта по названию...">
+    <div class="type-chip-row" id="compare-pick-row" style="max-height:180px; overflow-y:auto; margin-bottom:14px;">${pickChips}</div>
+    ${resultHtml}
+  `;
+}
+
+function projectCompareTable(list) {
+  const catColors = { mat: 'var(--amber)', labor: '#C77D3A', other: 'var(--text-dim)', stas: '#8A6FB0', sasha: '#5C8FB0', alex: '#B05C7E', profit: 'var(--green)' };
+  const catLabels = { cost: 'Стоимость', mat: 'Стройматериалы', labor: 'ЗП рабочих', other: 'Прочее', stas: 'ЗП Стас', sasha: 'ЗП Саша', alex: 'ЗП Алекс', profit: 'Прибыль', profitPct: '% прибыли' };
+  const rowsKeys = ['cost','mat','labor','other','stas','sasha','alex','profit','profitPct'];
+
+  const cards = list.map(p => `
+    <div class="stat-box" style="text-align:left;">
+      <div class="stat-box-label" style="white-space:normal; line-height:1.3; margin-bottom:8px;">${p.name}</div>
+      ${rowsKeys.map(k => {
+        const val = k === 'profitPct' ? fmtPct(p[k]) : fmt(p[k]);
+        const color = (k==='profit' && p.profit<0) ? 'var(--red)' : (k==='profitPct' && p.profitPct<0) ? 'var(--red)' : 'var(--text)';
+        return `<div style="display:flex; justify-content:space-between; font-size:11.5px; padding:3px 0; border-bottom:1px solid var(--border-soft);"><span style="color:var(--text-faint)">${catLabels[k]}</span><span class="num" style="color:${color}; font-weight:600;">${val}</span></div>`;
+      }).join('')}
+    </div>
+  `).join('');
+
+  return `<div class="block-title">Сравнение (${list.length})</div><div class="compare-stats" style="grid-template-columns: repeat(${list.length}, 1fr);">${cards}</div>`;
+}
+
+function attachComparePickerHandlers(rerenderFn) {
+  const row = document.getElementById('compare-pick-row');
+  if (row) {
+    row.querySelectorAll('.compare-pick-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const name = chip.getAttribute('data-name');
+        const idx = compareSelection.indexOf(name);
+        if (idx >= 0) {
+          compareSelection.splice(idx, 1);
+        } else {
+          if (compareSelection.length >= 3) compareSelection.shift();
+          compareSelection.push(name);
+        }
+        rerenderFn();
+      });
+    });
+  }
+  const searchInput = document.getElementById('compare-pick-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      document.querySelectorAll('.compare-pick-chip').forEach(chip => {
+        const name = (chip.getAttribute('data-name') || '').toLowerCase();
+        chip.style.display = (!q || name.includes(q)) ? '' : 'none';
+      });
+    });
+  }
+}
+
+function setTheme(id) {
+  document.documentElement.setAttribute('data-theme', id);
+  document.querySelectorAll('.theme-dot').forEach(d => d.classList.toggle('active', d.getAttribute('data-theme-id') === id));
+  try { localStorage.setItem('rivolty-theme', id); } catch(e) {}
+}
+(function initTheme() {
+  let saved = 'navy';
+  try { saved = localStorage.getItem('rivolty-theme') || 'navy'; } catch(e) {}
+  setTheme(saved);
+})();
+
+renderList();
+renderClosedList();
+
+const refreshBtnEl = document.getElementById('refresh-btn');
+if (refreshBtnEl) refreshBtnEl.addEventListener('click', () => refreshLiveData(true));
+
+initLiveData();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
