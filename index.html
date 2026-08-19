@@ -456,7 +456,8 @@ function csvToObjects(text) {
 
 function n(v) {
   if (v === undefined || v === null || v === '') return 0;
-  const s = String(v).replace(/[$,\s]/g, '').replace(',', '.');
+  // В таблице числа вида "35 029,6" — пробел как разделитель тысяч, запятая как десятичная точка.
+  const s = String(v).replace(/[$\s]/g, '').replace(',', '.');
   const f = parseFloat(s);
   return isNaN(f) ? 0 : f;
 }
