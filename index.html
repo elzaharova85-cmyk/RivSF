@@ -6,7 +6,6 @@
 <title>RivSF</title>
 
 <link rel="manifest" href="manifest.json">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <meta name="theme-color" content="#14171A">
 
 <!-- iOS: делает страницу похожей на настоящее приложение -->
@@ -43,24 +42,25 @@
     --yellow: #D9BA5C;
   }
   [data-theme="sky"] {
-    --bg: #F4F9FD;
-    --bg-rgb: 244,249,253;
-    --bg-elevated: #EAF3FB;
+    --bg: #E3E9F3;
+    --bg-rgb: 227,233,243;
+    --bg-elevated: #D3DCEC;
     --bg-card: #FFFFFF;
-    --border: #D3E4F3;
-    --border-soft: #E3EEF8;
-    --text: #12233B;
-    --text-dim: #4A6584;
-    --text-faint: #8CA3BC;
-    --amber: #2E86DE;
-    --amber-rgb: 46,134,222;
+    --border: #8FA3C9;
+    --border-soft: #C3CFE5;
+    --text: #0B1830;
+    --text-dim: #3A4C72;
+    --text-faint: #7684A8;
+    --amber: #1656C9;
+    --amber-rgb: 22,86,201;
     --amber-contrast: #FFFFFF;
-    --green: #1E8E5A;
-    --green-dim: #DCF3E7;
-    --red: #D9483D;
-    --red-dim: #FBE2DF;
-    --yellow: #B98418;
+    --green: #13793F;
+    --green-dim: #CFEBDA;
+    --red: #C6281E;
+    --red-dim: #F7D6D3;
+    --yellow: #966109;
   }
+  [data-theme="sky"] .project-card:not(.waiting) { border-width: 1.5px; border-color: #6E86B8; }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; background: var(--bg); color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
@@ -85,7 +85,7 @@
   .section-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
   .list { display: flex; flex-direction: column; gap: 8px; padding: 0 20px 24px; }
   .project-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px 12px; cursor: pointer; transition: border-color 0.15s ease, transform 0.1s ease; position: relative; }
-  .project-card.waiting { opacity: 0.62; background: var(--bg-elevated); }
+  .project-card.waiting { opacity: 0.42; background: var(--bg-elevated); border-color: var(--border-soft); }
   .waiting-chip { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 100px; background: var(--border-soft); color: var(--text-faint); letter-spacing: 0.02em; }
   .project-card.highlight { border-left: 3px solid #9B7EDE; background: linear-gradient(90deg, rgba(155,126,222,0.08), var(--bg-card) 60%); }
   .highlight-chip { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 100px; background: rgba(155,126,222,0.16); color: #B79FEC; letter-spacing: 0.02em; }
@@ -297,7 +297,7 @@
       <div class="topbar-title">Проекты</div>
       <div class="theme-switch" id="theme-switch">
         <div class="theme-dot" data-theme-id="navy" style="background:linear-gradient(135deg,#161F35,#5DB2EE)" onclick="setTheme('navy')" title="Тёмно-синий"></div>
-        <div class="theme-dot" data-theme-id="sky" style="background:linear-gradient(135deg,#F4F9FD,#2E86DE)" onclick="setTheme('sky')" title="Светлый голубой"></div>
+        <div class="theme-dot" data-theme-id="sky" style="background:linear-gradient(135deg,#E3E9F3,#1656C9)" onclick="setTheme('sky')" title="Светлый голубой"></div>
       </div>
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px; gap:8px;">
@@ -351,8 +351,6 @@
     <div class="screen-body">
       <input type="text" class="search-input" id="closed-search" placeholder="Поиск по названию проекта..." oninput="renderClosedList()">
       <div class="type-chip-row" id="closed-year-chips"></div>
-      <button class="plan-btn primary" id="export-excel-btn" style="width:100%; margin-bottom:14px; padding:12px; font-size:13px;">📥 Экспорт в Excel</button>
-      <button class="plan-edit-btn" id="export-excel-btn" style="margin-bottom:14px; padding:9px 14px; font-size:12px;">📥 Скачать в Excel</button>
       <div class="closed-tiles-grid" id="closed-list"></div>
     </div>
   </div>
@@ -423,7 +421,6 @@ function bindStaticNav() {
   bind('bn-employees', () => openScreen('employees'));
   bind('bottom-back-btn', goBack);
   bind('detail-close-btn', closeDetail);
-  bind('export-excel-btn', exportClosedToExcel);
   bind('detail-backdrop', closeDetail);
 }
 bindStaticNav();
