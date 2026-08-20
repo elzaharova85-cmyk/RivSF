@@ -465,7 +465,14 @@ function n(v) {
 function parseSheetDate(v) {
   if (!v) return null;
   const s = String(v).trim();
-  // формат в таблице: M/D/YYYY или M/D/YY
+  // формат в таблице: ДД.ММ.ГГ или ДД.ММ.ГГГГ (реальный формат вашего экспорта)
+  const mDot = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
+  if (mDot) {
+    let [, d, mo, y] = mDot;
+    if (y.length === 2) y = '20' + y;
+    return `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+  // формат M/D/YYYY или M/D/YY (на всякий случай, если формат экспорта поменяется)
   const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
   if (m) {
     let [, mo, d, y] = m;
