@@ -1782,8 +1782,7 @@ function renderExpenseCompare() {
 
   const compareLink = `<div class="detail-name" style="margin-bottom:16px;">Сравнение расходов</div>`;
 
-  document.getElementById('stats-body').innerHTML = backLink + compareLink + header + yearChips + typeChips + summaryBlock + byYearBlocks + renderProjectComparePicker();
-  attachComparePickerHandlers(renderExpenseCompare);
+  document.getElementById('stats-body').innerHTML = backLink + compareLink + header + yearChips + typeChips + summaryBlock + byYearBlocks;
 }
 
 function setStatsFilter(kind, value) {
@@ -1801,8 +1800,17 @@ function renderStatsHome() {
       <div class="employee-btn" style="text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="renderExpenseCompare()">
         <div><div class="employee-btn-name">💰 Сравнение расходов</div><div class="employee-btn-role">Структура расходов по годам и типам</div></div><span class="chev" style="color:var(--text-faint)">›</span>
       </div>
+      <div class="employee-btn" style="text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="renderProjectCompareScreen()">
+        <div><div class="employee-btn-name">🆚 Сравнение проектов</div><div class="employee-btn-role">Выберите до 3 проектов и сравните по расходам</div></div><span class="chev" style="color:var(--text-faint)">›</span>
+      </div>
     </div>
   `;
+}
+
+function renderProjectCompareScreen() {
+  const backLink = `<div class="nav-btn" style="margin-bottom:16px;" onclick="renderStatsHome()"><span>‹ Статистика</span><span></span></div>`;
+  document.getElementById('stats-body').innerHTML = backLink + renderProjectComparePicker();
+  attachComparePickerHandlers(renderProjectCompareScreen);
 }
 
 let compareType = null;
@@ -1896,8 +1904,7 @@ function renderCompare(selectedType) {
   }
 
   const backToStatsLink = `<div class="nav-btn" style="margin-bottom:16px;" onclick="closeScreen('compare'); openScreen('stats');"><span>‹ Статистика</span><span></span></div>`;
-  document.getElementById('compare-body').innerHTML = backToStatsLink + yearChipsHtml + chipsHtml + overviewChart + detailHtml + renderProjectComparePicker();
-  attachComparePickerHandlers(() => renderCompare(compareType === null ? null : compareType));
+  document.getElementById('compare-body').innerHTML = backToStatsLink + yearChipsHtml + chipsHtml + overviewChart + detailHtml;
 }
 
 function setCompareYear(y) {
@@ -1908,9 +1915,10 @@ function setCompareYear(y) {
 
 function renderProjectComparePicker() {
   const pickList = [...closedProjects].sort((a,b) => (b.end||'').localeCompare(a.end||''));
+  const allTypes = [...new Set(closedProjects.map(p => p.type))];
   const pickChips = pickList.map((p) => {
     const active = compareSelection.includes(p.name);
-    return `<div class="type-chip compare-pick-chip ${active?'active':''}" data-name="${p.name.replace(/"/g,'&quot;')}">${p.name}</div>`;
+    return `<div class="type-chip compare-pick-chip ${active?'active':''}" data-name="${p.name.replace(/"/g,'&quot;')}" data-type="${p.type}">${p.name}</div>`;
   }).join('');
 
   let resultHtml = '';
@@ -1921,11 +1929,17 @@ function renderProjectComparePicker() {
     resultHtml = `<div class="formula-note">Выберите 2–3 проекта из списка выше, чтобы сравнить их по расходам.</div>`;
   }
 
+  const typeFilterHtml = `<div class="type-chip-row" id="compare-pick-type-row">
+    <div class="type-chip compare-pick-type-chip active" data-type="">Все типы</div>
+    ${allTypes.map(t => `<div class="type-chip compare-pick-type-chip" data-type="${t}">${TYPE_LABELS[t]||t}</div>`).join('')}
+  </div>`;
+
   return `
-    <div class="block-title">Сравнить проекты между собой</div>
-    <div class="formula-note" style="margin-bottom:12px;">Выберите до 3 закрытых проектов (независимо от типа/года). Начните вводить название, чтобы найти нужный.</div>
+    <div class="block-title" style="margin-top:0;">Сравнить проекты между собой</div>
+    <div class="formula-note" style="margin-bottom:12px;">Выберите до 3 закрытых проектов. Найдите по названию или отфильтруйте по типу работ.</div>
     <input type="text" class="search-input" id="compare-pick-search" placeholder="Поиск проекта по названию...">
-    <div class="type-chip-row" id="compare-pick-row" style="max-height:180px; overflow-y:auto; margin-bottom:14px;">${pickChips}</div>
+    ${typeFilterHtml}
+    <div class="type-chip-row" id="compare-pick-row" style="max-height:220px; overflow-y:auto; margin-bottom:14px;">${pickChips}</div>
     ${resultHtml}
   `;
 }
@@ -1966,13 +1980,30 @@ function attachComparePickerHandlers(rerenderFn) {
       });
     });
   }
+
+  const applyChipFilter = () => {
+    const q = (document.getElementById('compare-pick-search')?.value || '').trim().toLowerCase();
+    const activeTypeChip = document.querySelector('.compare-pick-type-chip.active');
+    const typeFilter = activeTypeChip ? activeTypeChip.getAttribute('data-type') : '';
+    document.querySelectorAll('.compare-pick-chip').forEach(chip => {
+      const name = (chip.getAttribute('data-name') || '').toLowerCase();
+      const type = chip.getAttribute('data-type') || '';
+      const matchesSearch = !q || name.includes(q);
+      const matchesType = !typeFilter || type === typeFilter;
+      chip.style.display = (matchesSearch && matchesType) ? '' : 'none';
+    });
+  };
+
   const searchInput = document.getElementById('compare-pick-search');
-  if (searchInput) {
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value.trim().toLowerCase();
-      document.querySelectorAll('.compare-pick-chip').forEach(chip => {
-        const name = (chip.getAttribute('data-name') || '').toLowerCase();
-        chip.style.display = (!q || name.includes(q)) ? '' : 'none';
+  if (searchInput) searchInput.addEventListener('input', applyChipFilter);
+
+  const typeRow = document.getElementById('compare-pick-type-row');
+  if (typeRow) {
+    typeRow.querySelectorAll('.compare-pick-type-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        typeRow.querySelectorAll('.compare-pick-type-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        applyChipFilter();
       });
     });
   }
