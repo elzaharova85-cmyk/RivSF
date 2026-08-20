@@ -1,6 +1,6 @@
 {
-  "name": "Проекты Rivolty",
-  "short_name": "Rivolty",
+  "name": "RivSF",
+  "short_name": "RivSF",
   "description": "Панель собственника — финансовая статистика по строительным проектам",
   "start_url": "./index.html",
   "scope": "./",
