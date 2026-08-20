@@ -76,6 +76,19 @@
   .theme-dot.active { border-color: var(--text); }
   .kpi-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border-soft); }
   .kpi-strip.secondary { border-bottom: 1px solid var(--border-soft); }
+  .kpi-hero { margin: 0 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+  .kpi-hero-c-top { display: flex; justify-content: space-between; align-items: flex-end; }
+  .kpi-hero-b-top { display: flex; align-items: flex-end; gap: 14px; }
+  .kpi-hero-b-num { font-size: 26px; font-weight: 800; color: var(--amber); line-height: 1; }
+  .kpi-hero-b-label { font-size: 11px; font-weight: 600; color: var(--text-dim); margin-bottom: 3px; line-height: 1.25; }
+  .kpi-hero-c-cost { text-align: right; }
+  .kpi-hero-cost-label { font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .kpi-hero-c-cost-val { font-size: 26px; font-weight: 800; color: var(--amber); line-height: 1.1; }
+  .kpi-hero-divider { height: 1px; background: var(--border-soft); margin: 14px 0; }
+  .kpi-hero-footer { display: flex; justify-content: space-between; }
+  .kpi-hero-item { text-align: left; }
+  .kpi-hero-item-label { font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-bottom: 3px; }
+  .kpi-hero-item-val { font-size: 15px; font-weight: 700; color: var(--text); }
   .kpi { background: var(--bg); padding: 14px 12px; }
   .kpi-label { font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 6px; }
   .kpi-value { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
@@ -308,15 +321,23 @@
 
   <div id="active-view">
 
-  <div class="kpi-strip">
-    <div class="kpi"><div class="kpi-label">В работе</div><div class="kpi-value num">10</div></div>
-    <div class="kpi"><div class="kpi-label">Стоимость всех</div><div class="kpi-value num amber">$598.5k</div></div>
-    <div class="kpi"><div class="kpi-label">Текущая прибыль</div><div class="kpi-value num green">$291.5k</div></div>
-  </div>
-  <div class="kpi-strip secondary">
-    <div class="kpi"><div class="kpi-label">Оплачено клиентами</div><div class="kpi-value num">$367.0k</div></div>
-    <div class="kpi"><div class="kpi-label">Долг клиентов</div><div class="kpi-value num" style="color:#E2695E;">$231.5k</div></div>
-    <div class="kpi"><div class="kpi-label">% оплачено</div><div class="kpi-value num">61%</div></div>
+  <div class="kpi-hero">
+    <div class="kpi-hero-c-top">
+      <div class="kpi-hero-b-top" style="gap:10px;">
+        <div class="num kpi-hero-b-num">10</div>
+        <div class="kpi-hero-b-label">проектов<br>в работе</div>
+      </div>
+      <div class="kpi-hero-c-cost">
+        <div class="kpi-hero-cost-label">Стоимость</div>
+        <div class="num kpi-hero-c-cost-val">$598.5k</div>
+      </div>
+    </div>
+    <div class="kpi-hero-divider"></div>
+    <div class="kpi-hero-footer">
+      <div class="kpi-hero-item"><div class="kpi-hero-item-label">Оплачено</div><div class="kpi-hero-item-val num">$367.0k</div></div>
+      <div class="kpi-hero-item"><div class="kpi-hero-item-label">Долг</div><div class="kpi-hero-item-val num" style="color:#E2695E;">$231.5k</div></div>
+      <div class="kpi-hero-item" style="text-align:center;"><div class="kpi-hero-item-label">% оплачено</div><div class="kpi-hero-item-val num">61%</div></div>
+    </div>
   </div>
 
   <div class="list-section">
@@ -616,17 +637,17 @@ function updateKpiStrip() {
   const total = active.reduce((a,p)=>a+p.total,0);
   const paid = active.reduce((a,p)=>a+p.paid,0);
   const debt = active.reduce((a,p)=>a+p.debt,0);
-  const profit = active.reduce((a,p)=>a+p.profit,0);
   const pct = total ? Math.round(paid/total*100) : 0;
   const fmtK = (n) => '$' + (n/1000).toFixed(1) + 'k';
-  const kpis = document.querySelectorAll('.kpi-strip .kpi-value');
-  if (kpis.length >= 6) {
-    kpis[0].textContent = active.length;
-    kpis[1].textContent = fmtK(total);
-    kpis[2].textContent = fmtK(profit);
-    kpis[3].textContent = fmtK(paid);
-    kpis[4].textContent = fmtK(debt);
-    kpis[5].textContent = pct + '%';
+
+  const setText = (sel, text) => { const el = document.querySelector(sel); if (el) el.textContent = text; };
+  setText('.kpi-hero-b-num', active.length);
+  setText('.kpi-hero-c-cost-val', fmtK(total));
+  const items = document.querySelectorAll('.kpi-hero-item-val');
+  if (items.length >= 3) {
+    items[0].textContent = fmtK(paid);
+    items[1].textContent = fmtK(debt);
+    items[2].textContent = pct + '%';
   }
 }
 
