@@ -216,6 +216,11 @@
   .type-chip.active { background: var(--amber); color: var(--amber-contrast); border-color: var(--amber); }
   .search-input { width: 100%; box-sizing: border-box; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; padding: 11px 14px; font-family: inherit; margin-bottom: 12px; }
   .search-input::placeholder { color: var(--text-faint); }
+  .closed-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; cursor: pointer; gap: 10px; }
+  .closed-row:active { background: var(--bg-elevated); }
+  .closed-row-name { font-size: 13.5px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .closed-row-sum { font-size: 13.5px; font-weight: 700; color: var(--text-dim); flex-shrink: 0; }
   .chart-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 14px 10px; margin-bottom: 16px; }
   .chart-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .chart-label { font-size: 11.5px; color: var(--text-dim); width: 78px; flex-shrink: 0; }
@@ -1077,16 +1082,10 @@ function renderClosedList() {
   const sorted = [...filtered].sort((a,b) => (b.end||'').localeCompare(a.end||''));
   list.innerHTML = sorted.map((p) => {
     return `
-    <div class="project-card" onclick="openClosedDetail(${closedProjects.indexOf(p)})">
-      <div class="pc-top"><div class="pc-name">${p.name}</div></div>
-      <div class="pc-money-row">
-        <span>Стоимость <span class="num">${fmt(p.cost)}</span></span>
-        <span>Тип <span class="num">${TYPE_LABELS[p.type] || p.type}</span></span>
-      </div>
-      <div class="pc-bottom">
-        <div><span class="pc-metric-label">Прибыль </span><span class="pc-metric-value num" style="color:${p.profit>=0?'var(--green)':'var(--red)'}">${fmt(p.profit)} (${fmtPct(p.profitPct)})</span></div>
-        <span class="status-chip ${p.profit>=0?'ok':'risk'}">${p.end || '—'}</span>
-      </div>
+    <div class="closed-row" onclick="openClosedDetail(${closedProjects.indexOf(p)})">
+      <div class="closed-row-name">${p.name}</div>
+      <div class="closed-row-sum num">${fmt(p.cost)}</div>
+      <span class="chevron" style="position:static; margin-left:6px;">›</span>
     </div>`;
   }).join('');
   if (!sorted.length) {
